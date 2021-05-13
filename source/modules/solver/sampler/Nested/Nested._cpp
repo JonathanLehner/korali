@@ -247,7 +247,7 @@ void Nested::runFirstGeneration()
 void Nested::updateBounds()
 {
   if (_ellipseVector.empty() == false)
-  if (_generatedSamples < _nextUpdate) return;
+    if (_generatedSamples < _nextUpdate) return;
 
   _nextUpdate += _proposalUpdateFrequency;
 

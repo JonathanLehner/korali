@@ -25,7 +25,7 @@ void CMAES::setInitialConfiguration()
   _previousBestEverValue = _bestEverValue;
   _previousBestValue = _bestEverValue;
   _currentBestValue = _bestEverValue;
- 
+
   // Initialize statistics
   _currentMinStandardDeviation = Inf;
   _currentMaxStandardDeviation = -Inf;
