@@ -20,11 +20,17 @@ void CMAES::setInitialConfiguration()
   _variableCount = _k->_variables.size();
 
   // Establishing optimization goal
-  _bestEverValue = -std::numeric_limits<double>::infinity();
+  _bestEverValue = -Inf;
 
   _previousBestEverValue = _bestEverValue;
   _previousBestValue = _bestEverValue;
   _currentBestValue = _bestEverValue;
+ 
+  // Initialize statistics
+  _currentMinStandardDeviation = Inf;
+  _currentMaxStandardDeviation = -Inf;
+  _minimumCovarianceEigenvalue = Inf;
+  _maximumCovarianceEigenvalue = -Inf;
 
   if (_populationSize == 0) _populationSize = ceil(4.0 + floor(3 * log((double)_variableCount)));
   if (_muValue == 0) _muValue = _populationSize / 2;
@@ -172,9 +178,6 @@ void CMAES::setInitialConfiguration()
   _conjugateEvolutionPathL2Norm = 0.0;
 
   for (size_t i = 0; i < _variableCount; i++) _currentMean[i] = _previousMean[i] = _k->_variables[i]->_initialValue;
-
-  _currentMinStandardDeviation = +std::numeric_limits<double>::infinity();
-  _currentMaxStandardDeviation = -std::numeric_limits<double>::infinity();
 }
 
 void CMAES::runGeneration()
@@ -631,8 +634,8 @@ void CMAES::updateDistribution()
   /* numerical error management */
   numericalErrorTreatment();
 
-  _currentMinStandardDeviation = std::numeric_limits<double>::infinity();
-  _currentMaxStandardDeviation = -std::numeric_limits<double>::infinity();
+  _currentMinStandardDeviation = Inf;
+  _currentMaxStandardDeviation = -Inf;
 
   // Calculating current Minimum and Maximum STD Devs
   for (size_t i = 0; i < _variableCount; ++i)
