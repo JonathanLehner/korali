@@ -35,13 +35,13 @@ How to run the example
 
 In a shell from this directory (inside :code:`11.latent.variables`), type
 
-.. code-block::
+.. code-block:: bash
 
     $ python3 run-saem.py
 
 to run the simple example. Or:
 
-.. code-block::
+.. code-block:: bash
 
     $ python3 run-saem-gaussian-mixture.py
 
@@ -203,7 +203,7 @@ Finally, we call the :code:`run()` routine to run the optimization, to find the 
 
 And then we wait for the result. This experiment can take a while, because of the MCMC sampling that is run every generation. The final output should look similar to this:   
 
-.. code-block::
+.. code-block:: bash
 
     [Korali] SAEM finished correctly.
     [Korali] Termination Criterion Met: Solver['Max Generations'] = 100.
