@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
-sys.path.append('../../learning/reinforcement/cartpole/_model')
+sys.path.append('../../learning/reinforcement/openspiel_tic_tak_toe/_model')
 from env import *
 
 ####### Defining Korali Problem
@@ -35,7 +35,7 @@ e["Problem"]["Environment Function"] = env
 e["Problem"]["Actions Between Policy Updates"] = 500
 e["Problem"]["Training Reward Threshold"] = 450
 e["Problem"]["Policy Testing Episodes"] = 10
-e["Problem"]["Possible Actions"] = [ [ -10.0 ], [  10.0 ] ]
+e["Problem"]["Possible Actions"] = [ [0], [1], [2], [3], [4], [5], [6], [7], [8] ]
                                      
 ### Defining State variables
 
