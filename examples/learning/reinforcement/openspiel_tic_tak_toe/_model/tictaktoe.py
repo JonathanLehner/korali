@@ -21,6 +21,7 @@ class TicTakToeGame:
 
   def reset(self, seed):
     np.random.seed(seed)
+    self.is_failed = False
     self.game_state = self.game.new_initial_state()
 
   def isFailed(self):
@@ -54,4 +55,10 @@ class TicTakToeGame:
     return state
 
   def getReward(self):
-    return 1.0 - 1.0*self.isFailed()
+    if(self.isFailed()):
+      return -100 # illegal moves
+    elif(self.game_state.is_terminal()):
+      rewards = max(self.game_state.rewards()) # reward for winning player, current player at terminal state is always -4
+      return rewards # reward the player who made the winning move i.e. made the game terminal
+    else: 
+      return 0 # no reward until game is over

@@ -22,6 +22,7 @@ class Leduc:
 
   def reset(self, seed):
     np.random.seed(seed)
+    self.is_failed = False
     self.game_state = self.game.new_initial_state()
     self.deal_cards()
 
@@ -50,10 +51,6 @@ class Leduc:
     while self.game_state.is_chance_node():
       random_action = np.random.choice(self.game_state.legal_actions())
       self.game_state.apply_action(random_action)
-
-      '''if(self.available_cards[random_action] == 1):
-          self.pyspiel.apply_action(random_action)
-          self.available_cards[random_action] = 0'''
 
   def getState(self):
     state = np.ones(10)*-1
@@ -106,4 +103,10 @@ class Leduc:
 
 
   def getReward(self):
-    return 1.0 - 1.0*self.isFailed()
+    if(self.isFailed()):
+      return -100 # illegal moves
+    elif(self.game_state.is_terminal()):
+      rewards = max(self.game_state.rewards()) # reward for winning player, current player at terminal state is always -4
+      return rewards # reward the player who made the winning move i.e. made the game terminal
+    else: 
+      return 0 # no reward until game is over
