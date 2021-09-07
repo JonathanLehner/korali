@@ -39,7 +39,12 @@ void DeepSupervisor::initialize()
   curLayer++;
 
   // Adding user-defined hidden layers
-  for (size_t i = 0; i < _neuralNetworkHiddenLayers.size(); i++) neuralNetworkConfig["Layers"][curLayer++] = _neuralNetworkHiddenLayers[i];
+  for (size_t i = 0; i < _neuralNetworkHiddenLayers.size(); i++)
+  {
+    neuralNetworkConfig["Layers"][curLayer]["Weight Scaling"] = _outputWeightsScaling;
+    neuralNetworkConfig["Layers"][curLayer] = _neuralNetworkHiddenLayers[i];
+    curLayer++;
+  }
 
   // Adding linear transformation layer to convert hidden state to match output channels
   neuralNetworkConfig["Layers"][curLayer]["Type"] = "Layer/Linear";
@@ -75,27 +80,23 @@ void DeepSupervisor::initialize()
   // If the hyperparameters have not been specified, produce new initial ones
   if (_hyperparameters.size() == 0) _hyperparameters = _neuralNetwork->generateInitialHyperparameters();
 
-  // Creating and setting hyperparameter structures
-  _neuralNetwork->setHyperparameters(_hyperparameters);
-
   /*****************************************************************
   * Setting up weight and bias optimization experiment
   *****************************************************************/
 
-  auto weightAndBiasParameters = _neuralNetwork->getHyperparameters();
+  if (_neuralNetworkOptimizer == "Adam") _optimizer = new korali::fAdam(_hyperparameters.size());
+  if (_neuralNetworkOptimizer == "AdaBelief") _optimizer = new korali::fAdaBelief(_hyperparameters.size());
+  if (_neuralNetworkOptimizer == "MADGRAD") _optimizer = new korali::fMadGrad(_hyperparameters.size());
+  if (_neuralNetworkOptimizer == "RMSProp") _optimizer = new korali::fRMSProp(_hyperparameters.size());
+  if (_neuralNetworkOptimizer == "Adagrad") _optimizer = new korali::fAdagrad(_hyperparameters.size());
 
-  if (_neuralNetworkOptimizer == "Adam") _optimizer = new korali::fAdam(weightAndBiasParameters.size());
-  if (_neuralNetworkOptimizer == "AdaBelief") _optimizer = new korali::fAdaBelief(weightAndBiasParameters.size());
-  if (_neuralNetworkOptimizer == "MADGRAD") _optimizer = new korali::fMadGrad(weightAndBiasParameters.size());
-  if (_neuralNetworkOptimizer == "RMSProp") _optimizer = new korali::fRMSProp(weightAndBiasParameters.size());
-  if (_neuralNetworkOptimizer == "Adagrad") _optimizer = new korali::fAdagrad(weightAndBiasParameters.size());
+  // Setting hyperparameter structures in the neural network and optmizer
+  setHyperparameters(_hyperparameters);
 
-  // Setting initial guesses as the current weight and bias parameters
-  _optimizer->_initialValues = weightAndBiasParameters;
-
-  // Resetting solver before using it
+  // Resetting Optimizer
   _optimizer->reset();
 
+  // Setting current loss
   _currentLoss = 0.0f;
 }
 
@@ -152,6 +153,7 @@ void DeepSupervisor::runGeneration()
     if (_l2RegularizationEnabled)
     {
       const auto nnHyperparameters = _neuralNetwork->getHyperparameters();
+#pragma omp parallel for simd
       for (size_t i = 0; i < nnHyperparameterGradients.size(); ++i)
         nnHyperparameterGradients[i] -= _l2RegularizationImportance * nnHyperparameters[i];
     }
@@ -173,12 +175,9 @@ void DeepSupervisor::setHyperparameters(const std::vector<float> &hyperparameter
 {
   // Update evaluation network
   _neuralNetwork->setHyperparameters(hyperparameters);
-}
 
-void DeepSupervisor::resetOptimizer()
-{
-  // Resetting
-  _optimizer->reset();
+  // Updating optimizer's current value
+  _optimizer->_currentValue = hyperparameters;
 }
 
 std::vector<std::vector<float>> &DeepSupervisor::getEvaluation(const std::vector<std::vector<std::vector<float>>> &input)

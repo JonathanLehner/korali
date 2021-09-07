@@ -16,10 +16,12 @@
 #define KORALI_EPSILON 0.00000000001
 
 #include <cmath>
+#include <gsl/gsl_sf.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_sf_gamma.h>
 #include <gsl/gsl_randist.h>
+#include <gsl/gsl_sf_erf.h>
 #include <limits>
 #include <stdlib.h>
 #include <string>
@@ -93,6 +95,45 @@ const double Min = std::numeric_limits<double>::min();
 const double Eps = std::numeric_limits<double>::epsilon();
 
 /**
+* @brief Check if both arguments are approximately equal up to given precision
+* @param a Value a
+* @param b Value b
+* @param epsilon Precision parameter
+* @return The inverse of the error function
+*/
+template <typename T>
+bool approximatelyEqual(T a, T b, T epsilon)
+{
+        return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
+/**
+* @brief Check if the first argument is surely greater than the second argument up to given precision
+* @param a First argument, to be checked if greater than b
+* @param b Value b
+* @param epsilon Precision parameter
+* @return The inverse of the error function
+*/
+template <typename T>
+bool definitelyGreaterThan(T a, T b, T epsilon)
+{
+        return (a - b) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
+/**
+* @brief Check if the first argument is surely smaller than the second argument up to given precision
+* @param a First argument, to be checked if smaller than b
+* @param b Value b
+* @param epsilon Precision parameter
+* @return The inverse of the error function
+*/
+template <typename T>
+bool definitelyLessThan(T a, T b, T epsilon)
+{
+        return (b - a) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
+/**
 * @brief Approximates the inverse of the error function
 * @param x Argument to the inverse error function
 * @return The inverse of the error function
@@ -131,17 +172,27 @@ T safeLogPlus(T x, T y)
 
 /**
 * @brief Safely computes log(exp(x)-exp(y)) and avoids overflows
-* @param x a variable
+* @param x a variable, x > y
 * @param y a variable
 * @return The result of log(exp(x)-exp(y))
 */
 template <typename T>
 T safeLogMinus(T x, T y)
 {
-  if (x > y)
-     return y + std::log(std::exp(x - y) - 1.);
+  if (x-y>12.0)
+  {
+    // prevent overflows when exponentiating x-y
+    return x;
+  }
+  else if(x>y)
+  {
+    return y + std::log(std::exp(x - y) - 1.);
+  }
   else
-     return x + std::log(1. - std::exp(y - x));
+  {
+    KORALI_LOG_ERROR("Invalid input to mathematical function 'safeLogMinus, x (%.*e) must be larger than y (%.*e)\n", x, y);
+    return 0.;
+  }
 }
 
 /**
@@ -232,7 +283,7 @@ T normalLogDensity(const T &x, const T &mean, const T &sigma)
 template <typename T>
 T normalCDF(const T &x, const T &mean, const T &sigma)
 {
-  return 0.5 + 0.5*erff((x-mean)/(sigma*M_SQRT2 + KORALI_EPSILON));
+  return 0.5 + 0.5*std::erf((x-mean)/(sigma*M_SQRT2));
 }
 
 /**
@@ -245,7 +296,8 @@ T normalCDF(const T &x, const T &mean, const T &sigma)
 template <typename T>
 T normalLogCDF(const T &x, const T &mean, const T &sigma)
 {
-  return log(0.5 + 0.5*erff((x-mean)/(sigma*M_SQRT2 + KORALI_EPSILON)));
+  const T z = (x-mean)/(sigma*M_SQRT2);
+  return std::log(0.5)+gsl_sf_log_erfc(-z);
 }
 
 /**
@@ -258,9 +310,8 @@ T normalLogCDF(const T &x, const T &mean, const T &sigma)
 template <typename T>
 T normalCCDF(const T &x, const T &mean, const T &sigma)
 {
-  return 0.5 - 0.5*erff((x-mean)/(sigma*M_SQRT2 + KORALI_EPSILON));
+  return 0.5 - 0.5*std::erf((x-mean)/(sigma*M_SQRT2));
 }
-
 
 /**
 * @brief Computes the log of the tail distribution of a normal distribution (complementary cumulative distribution).
@@ -272,7 +323,8 @@ T normalCCDF(const T &x, const T &mean, const T &sigma)
 template <typename T>
 T normalLogCCDF(const T &x, const T &mean, const T &sigma)
 {
-  return log(0.5 - 0.5*erff((x-mean)/(sigma*M_SQRT2)));
+  const T z = (x-mean)/(sigma*M_SQRT2);
+  return std::log(0.5) + gsl_sf_log_erfc(z);
 }
 
 /**

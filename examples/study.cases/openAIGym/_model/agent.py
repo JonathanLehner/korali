@@ -62,7 +62,7 @@ def initEnvironment(e, envName, moviePath = ''):
   e["Variables"][stateVariableCount + i]["Type"] = "Action"
   e["Variables"][stateVariableCount + i]["Lower Bound"] = float(env.action_space.low[i])
   e["Variables"][stateVariableCount + i]["Upper Bound"] = float(env.action_space.high[i])
-  e["Variables"][stateVariableCount + i]["Initial Exploration Noise"] = 0.25
+  e["Variables"][stateVariableCount + i]["Initial Exploration Noise"] = math.sqrt(0.2)
 
  ### Defining Termination Criteria
 

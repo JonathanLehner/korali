@@ -124,7 +124,7 @@ e["File Output"]["Enabled"] = False
 
 ### Training the neural network
 
-e["Solver"]["Termination Criteria"]["Max Generations"] = 50
+e["Solver"]["Termination Criteria"]["Max Generations"] = int(args.maxGenerations)
 
 ### If this is test mode, run only a couple generations
 if len(sys.argv) == 2:

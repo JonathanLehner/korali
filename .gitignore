@@ -28,10 +28,15 @@ __pycache__
 .korali.config
 .DS_Store/
 .DS_Store
+._.DS_Store
 fontconfig/
 /include
 
 *.odg#
+## figures
+*.eps
+*.png
+*.mp4
 
 ## -- added by susanne:
 # PyCharm:

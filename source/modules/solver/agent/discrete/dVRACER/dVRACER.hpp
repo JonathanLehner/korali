@@ -96,7 +96,6 @@ class dVRACER : public Discrete
   knlohmann::json getAgentPolicy() override;
   void setAgentPolicy(const knlohmann::json &hyperparameters) override;
   void trainPolicy() override;
-  void resetAgentOptimizers() override;
   void printAgentInformation() override;
   void initializeAgent() override;
 };

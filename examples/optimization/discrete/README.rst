@@ -116,5 +116,5 @@ The results are saved in the folder `_korali_result/`.
 Plotting
 ---------------------------
 
-You can see the results of CMA-ES by running the command, `python3 -m korali.plotter`
+You can see the results of CMA-ES by running the command, `python3 -m korali.plot`
 which visualizes the results found in folder `_korali_result`.

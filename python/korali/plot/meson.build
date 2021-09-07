@@ -16,5 +16,5 @@ python_sources = files([
 python.install_sources(
     python_sources,
     pure: false, # will be installed next to binaries
-    subdir: korali / 'plotter'  # folder relative to site-packages to install to
+    subdir: korali / 'plot'  # folder relative to site-packages to install to
 )

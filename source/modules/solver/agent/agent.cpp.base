@@ -89,7 +89,7 @@ void __className__::initialize()
 
     // If cutoff scale is not defined, use a heuristic value
     if (_experienceReplayOffPolicyCutoffScale < 0.0f)
-      KORALI_LOG_ERROR("Expericne Replay Cutoff Scale must be larger 0.0");
+      KORALI_LOG_ERROR("Experience Replay Cutoff Scale must be larger 0.0");
 
     _experienceReplayOffPolicyCount = 0;
     _experienceReplayOffPolicyRatio = 0.0f;
@@ -100,19 +100,21 @@ void __className__::initialize()
     _stateRescalingMeans = std::vector<float>(_problem->_stateVectorSize, 0.0);
     _stateRescalingSigmas = std::vector<float>(_problem->_stateVectorSize, 1.0);
 
-    _rewardRescalingMean = 0.0f;
     _rewardRescalingSigma = 1.0f;
-    _rewardRescalingCount = 0;
+    _rewardRescalingSumSquaredRewards = 0.0f;
     _rewardOutboundPenalizationCount = 0;
+
+    // Getting agent's initial policy
+    _trainingCurrentPolicy = getAgentPolicy();
   }
+
+  // Setting current agent's training state
+  setAgentPolicy(_trainingCurrentPolicy);
 
   // If this continues a previous training run, deserialize previous input experience replay
   if (_k->_currentGeneration > 0)
     if (_mode == "Training" || _testingBestPolicy.empty())
       deserializeExperienceReplay();
-
-  // Getting agent's initial policy
-  _trainingCurrentPolicy = getAgentPolicy();
 
   // Initializing session-wise profiling timers
   _sessionRunningTime = 0.0;
@@ -145,17 +147,17 @@ void __className__::initialize()
     _maxGenerations = _k->_currentGeneration + 1;
 
     // Setting testing policy to best testing hyperparameters if not custom-set by the user
-    if (_testingPolicy.empty())
+    if (_testingCurrentPolicy.empty())
     {
       // Checking if testing policies have been generated
       if (_testingBestPolicy.empty())
       {
         _k->_logger->logWarning("Minimal", "Trying to test policy, but no testing policies have been generated during training yet or given in the configuration. Using current training policy instead.\n");
-        _testingPolicy = _trainingCurrentPolicy;
+        _testingCurrentPolicy = _trainingCurrentPolicy;
       }
       else
       {
-        _testingPolicy = _testingBestPolicy;
+        _testingCurrentPolicy = _testingBestPolicy;
       }
     }
 
@@ -216,11 +218,6 @@ void __className__::trainingGeneration()
     // Perform optimization steps on the critic/policy, if reached the minimum replay memory size
     if (_experienceCount >= _experienceReplayStartSize)
     {
-      // If we performed enough policy updates, we rescale rewards again
-      if (_rewardRescalingEnabled == true)
-        if (_policyUpdateCount >= _rewardRescalingFrequency * _rewardRescalingCount)
-          calculateRewardRescalingFactors();
-
       // If we accumulated enough experiences, we rescale the states (once)
       if (_stateRescalingEnabled == true)
         if (_policyUpdateCount == 0)
@@ -295,7 +292,7 @@ void __className__::testingGeneration()
     testingAgents[agentId]["Sample Id"] = _testingSampleIds[agentId];
     testingAgents[agentId]["Module"] = "Problem";
     testingAgents[agentId]["Operation"] = "Run Testing Episode";
-    testingAgents[agentId]["Policy Hyperparameters"] = _testingPolicy;
+    testingAgents[agentId]["Policy Hyperparameters"] = _testingCurrentPolicy;
     testingAgents[agentId]["State Rescaling"]["Means"] = _stateRescalingMeans;
     testingAgents[agentId]["State Rescaling"]["Standard Deviations"] = _stateRescalingSigmas;
 
@@ -339,25 +336,6 @@ void __className__::rescaleStates()
   for (size_t i = 0; i < _stateVector.size(); ++i)
     for (size_t d = 0; d < _problem->_stateVectorSize; ++d)
       _stateVector[i][d] = (_stateVector[i][d] - _stateRescalingMeans[d]) / _stateRescalingSigmas[d];
-}
-
-void __className__::calculateRewardRescalingFactors()
-{
-  float sumReward = 0.0;
-  float sumSquareReward = 0.0;
-
-  // Calculate mean and standard deviation of unscaled rewards.
-  for (size_t i = 0; i < _rewardVector.size(); i++)
-  {
-    float reward = _rewardVector[i];
-    sumReward += reward;
-    sumSquareReward += reward * reward;
-  }
-
-  // Calculating reward scaling s,t. mean equals 0.0 and standard deviation 1.0.
-  _rewardRescalingMean = sumReward / (float)_rewardVector.size();
-  _rewardRescalingSigma = std::sqrt(sumSquareReward / (float)_rewardVector.size() - _rewardRescalingMean * _rewardRescalingMean + 1e-9);
-  _rewardRescalingCount++;
 }
 
 void __className__::attendAgent(size_t agentId)
@@ -491,6 +469,15 @@ void __className__::processEpisode(size_t episodeId, knlohmann::json &episode)
       }
     }
 
+    if (_rewardRescalingEnabled)
+    {
+      if (_rewardVector.size() >= _experienceReplayMaximumSize)
+      {
+        _rewardRescalingSumSquaredRewards -= _rewardVector[0] * _rewardVector[0];
+      }
+      _rewardRescalingSumSquaredRewards += reward * reward;
+    }
+
     _rewardVector.add(reward);
 
     // Keeping statistics
@@ -599,6 +586,9 @@ void __className__::processEpisode(size_t episodeId, knlohmann::json &episode)
     // Setting initial retrace value in the experience's cache
     _retraceValueVector[expId] = retV;
   }
+
+  if (_rewardRescalingEnabled)
+    _rewardRescalingSigma = std::sqrt(_rewardRescalingSumSquaredRewards / (float)_rewardVector.size() + 1e-9);
 }
 
 std::vector<size_t> __className__::generateMiniBatch(size_t miniBatchSize)
@@ -637,7 +627,11 @@ void __className__::updateExperienceMetadata(const std::vector<size_t> &miniBatc
   for (size_t i = 1; i < miniBatchSize; i++)
     if (miniBatch[i] != miniBatch[i - 1]) updateBatch.push_back(i);
 
-#pragma omp parallel for
+  // Calculate offpolicy count difference in minibatch
+  int offPolicyCountDelta = 0;
+
+#pragma omp parallel for reduction(+ \
+                                   : offPolicyCountDelta)
   for (size_t i = 0; i < updateBatch.size(); i++)
   {
     auto batchId = updateBatch[i];
@@ -668,12 +662,10 @@ void __className__::updateExperienceMetadata(const std::vector<size_t> &miniBatc
 
     // Updating off policy count if a change is detected
     if (_isOnPolicyVector[expId] == true && isOnPolicy == false)
-#pragma omp atomic
-      _experienceReplayOffPolicyCount++;
+      offPolicyCountDelta++;
 
     if (_isOnPolicyVector[expId] == false && isOnPolicy == true)
-#pragma omp atomic
-      _experienceReplayOffPolicyCount--;
+      offPolicyCountDelta--;
 
     // Store computed information for use in replay memory.
     _curPolicyVector[expId] = curPolicy;
@@ -697,10 +689,11 @@ void __className__::updateExperienceMetadata(const std::vector<size_t> &miniBatc
     }
   }
 
-  // Updating the off policy Ratio
+  // Updating the off policy count and ratio
+  _experienceReplayOffPolicyCount += offPolicyCountDelta;
   _experienceReplayOffPolicyRatio = (float)_experienceReplayOffPolicyCount / (float)_isOnPolicyVector.size();
 
-  // Updating the off policy Cutoff
+  // Updating the off policy cutoff
   _experienceReplayOffPolicyCurrentCutoff = _experienceReplayOffPolicyCutoffScale / (1.0f + _experienceReplayOffPolicyAnnealingRate * (float)_policyUpdateCount);
 
   // Now filtering experiences from the same episode
@@ -906,12 +899,8 @@ void __className__::serializeExperienceReplay()
     stateJson["Experience Replay"][i]["Current Policy"]["State Value"] = _curPolicyVector[i].stateValue;
     stateJson["Experience Replay"][i]["Current Policy"]["Distribution Parameters"] = _curPolicyVector[i].distributionParameters;
     stateJson["Experience Replay"][i]["Current Policy"]["Action Index"] = _curPolicyVector[i].actionIndex;
+    stateJson["Experience Replay"][i]["Current Policy"]["Unbounded Action"] = _curPolicyVector[i].unboundedAction;
   }
-
-  // Storing training/testing policies
-  stateJson["Training"]["Current Policy"] = _trainingCurrentPolicy;
-  stateJson["Training"]["Best Policy"] = _trainingBestPolicy;
-  stateJson["Testing"]["Best Policy"] = _testingBestPolicy;
 
   // If results directory doesn't exist, create it
   if (!dirExists(_k->_fileOutputPath)) mkdir(_k->_fileOutputPath);
@@ -990,19 +979,9 @@ void __className__::deserializeExperienceReplay()
     curPolicy.stateValue = stateJson["Experience Replay"][i]["Current Policy"]["State Value"].get<float>();
     curPolicy.distributionParameters = stateJson["Experience Replay"][i]["Current Policy"]["Distribution Parameters"].get<std::vector<float>>();
     curPolicy.actionIndex = stateJson["Experience Replay"][i]["Current Policy"]["Action Index"].get<size_t>();
+    curPolicy.unboundedAction = stateJson["Experience Replay"][i]["Current Policy"]["Unbounded Action"].get<std::vector<float>>();
     _curPolicyVector.add(curPolicy);
   }
-
-  // Restoring training/testing policies
-  _trainingCurrentPolicy = stateJson["Training"]["Current Policy"];
-  _trainingBestPolicy = stateJson["Training"]["Best Policy"];
-  _testingBestPolicy = stateJson["Testing"]["Best Policy"];
-
-  // Setting current agent's training state
-  setAgentPolicy(_trainingCurrentPolicy);
-
-  // Resetting the optimizers that the algorithm might be using
-  resetAgentOptimizers();
 
   auto endTime = std::chrono::steady_clock::now();                                                                         // Profiling
   double deserializationTime = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - beginTime).count() / 1.0e+9; // Profiling
@@ -1064,7 +1043,7 @@ void __className__::printGenerationAfter()
     _k->_logger->logInfo("Normal", " + Current Learning Rate:           %.3e\n", _currentLearningRate);
 
     if (_rewardRescalingEnabled)
-      _k->_logger->logInfo("Normal", " + Reward Rescaling:            N(%.3e, %.3e)         \n", _rewardRescalingMean, _rewardRescalingSigma);
+      _k->_logger->logInfo("Normal", " + Reward Rescaling:            N(%.3e, %.3e)         \n", 0.0, _rewardRescalingSigma);
 
     if (_stateRescalingEnabled)
       _k->_logger->logInfo("Normal", " + Using State Rescaling\n");

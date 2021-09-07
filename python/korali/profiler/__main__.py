@@ -15,7 +15,7 @@ import numpy as np
 signal.signal(signal.SIGINT, lambda x, y: exit(0))
 
 parser = argparse.ArgumentParser(
-    prog='korali.plotter',
+    prog='korali.plot',
     description='Show profiling information of a Korali execution.')
 parser.add_argument(
     '--input',

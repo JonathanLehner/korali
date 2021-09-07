@@ -96,7 +96,6 @@ e["Solver"]["Experience Replay"]["Off Policy"]["Target"] = 0.1
 
 e["Solver"]["State Rescaling"]["Enabled"] = True
 e["Solver"]["Reward"]["Rescaling"]["Enabled"] = True
-e["Solver"]["Reward"]["Rescaling"]["Frequency"] = 1000
   
 ### Configuring the neural network and its hidden layers
 

@@ -19,7 +19,6 @@ class __className__ : public __parentClassName__
 {
   public:
   Experiment();
-  ~Experiment();
 
   void initialize() override;
   void finalize() override;

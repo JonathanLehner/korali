@@ -143,7 +143,7 @@ namespace
   a->_trainingCurrentPolicy = std::vector<float>({1.0});
   a->_testingBestPolicy = std::vector<float>();
   ASSERT_NO_THROW(a->initialize());
-  ASSERT_EQ(a->_testingPolicy, a->_trainingCurrentPolicy);
+  ASSERT_EQ(a->_testingCurrentPolicy, a->_trainingCurrentPolicy);
 
   // Testing Process Episode corner cases
   knlohmann::json episode;
@@ -478,16 +478,6 @@ namespace
 
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
-  agentJs["Reward"]["Rescaling"]["Mean"] = "Not a Number";
-  ASSERT_ANY_THROW(a->setConfiguration(agentJs));
-
-  agentJs = baseOptJs;
-  experimentJs = baseExpJs;
-  agentJs["Reward"]["Rescaling"]["Mean"] = 1.0;
-  ASSERT_NO_THROW(a->setConfiguration(agentJs));
-
-  agentJs = baseOptJs;
-  experimentJs = baseExpJs;
   agentJs["Reward"]["Rescaling"]["Sigma"] = "Not a Number";
   ASSERT_ANY_THROW(a->setConfiguration(agentJs));
 
@@ -495,15 +485,15 @@ namespace
   experimentJs = baseExpJs;
   agentJs["Reward"]["Rescaling"]["Sigma"] = 1.0;
   ASSERT_NO_THROW(a->setConfiguration(agentJs));
-
+ 
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
-  agentJs["Reward"]["Rescaling"]["Count"] = "Not a Number";
+  agentJs["Reward"]["Rescaling"]["Sum Squared Rewards"] = "Not a Number";
   ASSERT_ANY_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
-  agentJs["Reward"]["Rescaling"]["Count"] = 1;
+  agentJs["Reward"]["Rescaling"]["Sum Squared Rewards"] = 1.0;
   ASSERT_NO_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
@@ -551,30 +541,6 @@ namespace
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
   agentJs["Mode"] = "Training";
-  ASSERT_NO_THROW(a->setConfiguration(agentJs));
-
-  agentJs = baseOptJs;
-  experimentJs = baseExpJs;
-  agentJs["Testing"].erase("Sample Ids");
-  ASSERT_ANY_THROW(a->setConfiguration(agentJs));
-
-  agentJs = baseOptJs;
-  experimentJs = baseExpJs;
-  agentJs["Testing"]["Sample Ids"] = "Not a Number";
-  ASSERT_ANY_THROW(a->setConfiguration(agentJs));
-
-  agentJs = baseOptJs;
-  experimentJs = baseExpJs;
-  agentJs["Testing"]["Sample Ids"] = std::vector<size_t>({0});
-  ASSERT_NO_THROW(a->setConfiguration(agentJs));
-
-  agentJs = baseOptJs;
-  experimentJs = baseExpJs;
-  agentJs["Testing"].erase("Policy");
-
-  agentJs = baseOptJs;
-  experimentJs = baseExpJs;
-  agentJs["Testing"]["Policy"] = std::vector<size_t>({0});
   ASSERT_NO_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
@@ -939,27 +905,37 @@ namespace
 
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
-  agentJs["Reward"]["Rescaling"].erase("Frequency");
+  agentJs["Testing"].erase("Sample Ids");
   ASSERT_ANY_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
-  agentJs["Reward"]["Rescaling"]["Frequency"] = "Not a Number";
+  agentJs["Testing"]["Sample Ids"] = "Not a Number";
   ASSERT_ANY_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
-  agentJs["Reward"]["Rescaling"]["Frequency"] = 2;
+  agentJs["Testing"]["Sample Ids"] = std::vector<size_t>({0});
   ASSERT_NO_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
-  agentJs["Testing"].erase("Policy");
+  agentJs["Testing"].erase("Current Policy");
   ASSERT_ANY_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
-  agentJs["Testing"]["Policy"] = knlohmann::json();
+  agentJs["Testing"]["Current Policy"] = std::vector<size_t>({0});
+  ASSERT_NO_THROW(a->setConfiguration(agentJs));
+
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs["Testing"].erase("Best Policy");
+  ASSERT_NO_THROW(a->setConfiguration(agentJs));
+
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs["Testing"]["Best Policy"] = std::vector<size_t>({0});
   ASSERT_NO_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
@@ -975,6 +951,26 @@ namespace
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
   agentJs["Training"]["Average Depth"] = 2;
+  ASSERT_NO_THROW(a->setConfiguration(agentJs));
+
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs["Training"].erase("Current Policy");
+  ASSERT_NO_THROW(a->setConfiguration(agentJs));
+
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs["Training"]["Current Policy"] = std::vector<size_t>({0});
+  ASSERT_NO_THROW(a->setConfiguration(agentJs));
+
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs["Training"].erase("Best Policy");
+  ASSERT_NO_THROW(a->setConfiguration(agentJs));
+
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs["Training"]["Best Policy"] = std::vector<size_t>({0});
   ASSERT_NO_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;

@@ -158,11 +158,6 @@ class DeepSupervisor : public Learner
   //
   //  std::vector<std::vector<float>> &getDataGradients(const std::vector<std::vector<std::vector<float>>> &input, const std::vector<std::vector<float>> &outputGradients);
 
-  /**
-   * @brief Resets the optimizer after passing new hyperparameters
-   */
-  void resetOptimizer();
-
   std::vector<std::vector<float>> &getEvaluation(const std::vector<std::vector<std::vector<float>>> &input) override;
   std::vector<float> getHyperparameters() override;
   void setHyperparameters(const std::vector<float> &hyperparameters) override;

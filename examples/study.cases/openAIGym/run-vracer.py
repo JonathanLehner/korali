@@ -8,8 +8,11 @@ from agent import *
 ####### Parsing arguments
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--env', help='Specifies which environment to run.', type=str, required=True)
-parser.add_argument('--policy', help='Specifies the policy distribution.', type=str, default="Normal")
+parser.add_argument('--env', help='Specifies which environment to run.', required=True)
+parser.add_argument('--dis', help='Sampling Distribution.', required=True)
+parser.add_argument('--l2', help='L2 Regularization.', required=False, type=float, default = 0.)
+parser.add_argument('--opt', help='Off Policy Target.', required=False, type=float, default = 0.1)
+parser.add_argument('--lr', help='Learning Rate.', required=False, type=float, default = 0.0001)
 args = parser.parse_args()
 print(args)
 
@@ -21,7 +24,8 @@ e = korali.Experiment()
 
 ### Defining results folder and loading previous results, if any
 
-resultFolder = '_result_vracer_' + args.policy + '_' + args.env + '/'
+dis_dir = args.dis.replace(" ","_")
+resultFolder = '_result_vracer_' + args.env + '_' + dis_dir + '_' + str(args.lr) + '_' + str(args.opt) + '_' + str(args.l2) + '/'
 e.loadState(resultFolder + '/latest');
 
 ### Initializing openAI Gym environment
@@ -34,33 +38,29 @@ e["Solver"]["Type"] = "Agent / Continuous / VRACER"
 e["Solver"]["Mode"] = "Training"
 e["Solver"]["Episodes Per Generation"] = 10
 e["Solver"]["Experiences Between Policy Updates"] = 1
-e["Solver"]["Learning Rate"] = 0.0001
+e["Solver"]["Learning Rate"] = args.lr
 e["Solver"]["Discount Factor"] = 0.995
 e["Solver"]["Mini Batch"]["Size"] = 256
 
 ### Setting Experience Replay and REFER settings
 
-e["Solver"]["Experience Replay"]["Start Size"] = 32768
-e["Solver"]["Experience Replay"]["Maximum Size"] = 131072
-e["Solver"]["Experience Replay"]["Off Policy"]["Cutoff Scale"] = 5.0
+e["Solver"]["Experience Replay"]["Start Size"] = 131072
+e["Solver"]["Experience Replay"]["Maximum Size"] = 262144
 e["Solver"]["Experience Replay"]["Off Policy"]["Annealing Rate"] = 5.0e-8
-e["Solver"]["Experience Replay"]["Off Policy"]["Cutoff Scale"] = 5.0
+e["Solver"]["Experience Replay"]["Off Policy"]["Cutoff Scale"] = 4.0
 e["Solver"]["Experience Replay"]["Off Policy"]["REFER Beta"] = 0.3
-e["Solver"]["Experience Replay"]["Off Policy"]["Target"] = 0.1
+e["Solver"]["Experience Replay"]["Off Policy"]["Target"] = args.opt
 
-e["Solver"]["Policy"]["Distribution"] = args.policy.replace("_"," ")
+e["Solver"]["Policy"]["Distribution"] = args.dis
 e["Solver"]["State Rescaling"]["Enabled"] = True
 e["Solver"]["Reward"]["Rescaling"]["Enabled"] = True
-e["Solver"]["Reward"]["Rescaling"]["Frequency"] = 1000
-e["Solver"]["Reward"]["Outbound Penalization"]["Enabled"] = False
-e["Solver"]["Reward"]["Outbound Penalization"]["Factor"] = 0.5
   
 ### Configuring the neural network and its hidden layers
 
 e["Solver"]["Neural Network"]["Engine"] = "OneDNN"
 e["Solver"]['Neural Network']['Optimizer'] = "Adam"
-e["Solver"]["L2 Regularization"]["Enabled"] = True
-e["Solver"]["L2 Regularization"]["Importance"] = 1.0
+e["Solver"]["L2 Regularization"]["Enabled"] = args.l2 > 0.
+e["Solver"]["L2 Regularization"]["Importance"] = args.l2
 
 e["Solver"]["Neural Network"]["Hidden Layers"][0]["Type"] = "Layer/Linear"
 e["Solver"]["Neural Network"]["Hidden Layers"][0]["Output Channels"] = 128
@@ -80,7 +80,7 @@ e["Solver"]["Termination Criteria"]["Max Experiences"] = 10e6
 e["Solver"]["Experience Replay"]["Serialize"] = True
 e["Console Output"]["Verbosity"] = "Detailed"
 e["File Output"]["Enabled"] = True
-e["File Output"]["Frequency"] = 10
+e["File Output"]["Frequency"] = 200
 e["File Output"]["Path"] = resultFolder
 
 ### Running Experiment

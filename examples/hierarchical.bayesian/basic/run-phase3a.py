@@ -32,7 +32,7 @@ e["Solver"]["Type"] = "Sampler/TMCMC"
 e["Solver"]["Population Size"] = 1000
 e["Solver"]["Target Coefficient Of Variation"] = 0.6
 e["Solver"]["Covariance Scaling"] = 0.02
-e["Solver"]["Default Burn In"] = 1
+e["Solver"]["Burn In"] = 1
 
 e["Console Output"]["Verbosity"] = "Detailed"
 e["File Output"]["Path"] = "_setup/results_phase_3a/"

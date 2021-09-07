@@ -73,6 +73,10 @@ class Experiment : public Module
   */
    std::string _fileOutputPath;
   /**
+  * @brief If true, Korali stores a different generation file per generation with incremental numbering. If disabled, Korali stores the latest generation files into a single file, overwriting previous results.
+  */
+   int _fileOutputUseMultipleFiles;
+  /**
   * @brief Specifies whether the partial results should be saved to the results directory.
   */
    int _fileOutputEnabled;
@@ -132,7 +136,6 @@ class Experiment : public Module
   
 
   Experiment();
-  ~Experiment();
 
   void initialize() override;
   void finalize() override;

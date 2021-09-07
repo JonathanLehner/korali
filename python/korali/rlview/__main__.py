@@ -11,12 +11,18 @@ import math
 import numpy as np
 import scipy.stats as st
 import matplotlib.pyplot as plt
-from korali.plotter.helpers import hlsColors, drawMulticoloredLine
+from korali.plot.helpers import hlsColors, drawMulticoloredLine
 from scipy.signal import savgol_filter
+
+# Check if name has correct suffix
+def validateOutput(output):
+  if not (output.endswith(".png") or output.endswith(".eps") or output.endswith(".svg")):
+    print("[Korali] Error: Outputfile '{0}' must end with '.eps', '.png' or '.svg' suffix.".format(output))
+    sys.exit(-1)
 
 ##################### Plotting Reward History
 
-def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, maxObservations, showCI):
+def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, maxObservations, showCI, aggregate):
 
  ## Setting initial x-axis (episode) and  y-axis (reward) limits
  
@@ -28,23 +34,39 @@ def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, max
  cmap = matplotlib.cm.get_cmap('brg')
  colCurrIndex = 0.0
 
- ## Plotting the individual experiment results
-    
- for resId, r in enumerate(results):
+ ## Reading the individual results
+
+ unpackedResults = []
+ for r in results:
   
   if (len(r) == 0): continue  
   
-  rewardHistory = r[-1]["Solver"]["Training"]["Reward History"]
-  obsCountHistory = r[-1]["Solver"]["Training"]["Experience History"]
+  cumulativeObsCountHistory = np.cumsum(np.array(r["Solver"]["Training"]["Experience History"]))
+  rewardHistory = np.array(r["Solver"]["Training"]["Reward History"])
+  trainingRewardThreshold = r["Problem"]["Training Reward Threshold"]
+  testingRewardThreshold = r["Solver"]["Termination Criteria"]["Testing"]["Target Average Reward"]
+
+  # Merge Results
+  if aggregate == True and len(unpackedResults) > 0:
+    coH, rH, trTh, teTh = unpackedResults[0]
+    aggCumObs = np.append(coH, cumulativeObsCountHistory)
+    aggRewards = np.append(rH, rewardHistory)
+
+    sortedAggRewards = np.array([r for _, r in sorted(zip(aggCumObs, aggRewards), key=lambda pair: pair[0])])
+    sortedAggCumObs = np.sort(aggCumObs)
+    unpackedResults[0] = (sortedAggCumObs, sortedAggRewards, trainingRewardThreshold, testingRewardThreshold)
+
+  # Append Results
+  else:
+    unpackedResults.append( (cumulativeObsCountHistory, rewardHistory, trainingRewardThreshold, testingRewardThreshold) )
+
+ ## Plotting the individual experiment results
+    
+ for resId, r in enumerate(unpackedResults):
   
-  # Gathering observation count for each result
+  cumulativeObsArr, rewardHistory, trainingRewardThreshold, testingRewardThreshold = r
   
-  currObsCount = 0
-  cumulativeObsList = []
-  epList = range(0, len(rewardHistory)) 
-  for c in obsCountHistory:
-   currObsCount = currObsCount + c
-   cumulativeObsList.append(currObsCount)
+  currObsCount = cumulativeObsArr[-1]
   
   # Updating common plot limits
  
@@ -59,9 +81,6 @@ def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, max
    if (max(rewardHistory) < math.inf):
     maxPlotReward = max(rewardHistory)
 
-  trainingRewardThreshold = r[-1]["Problem"]["Training Reward Threshold"]
-  testingRewardThreshold = r[-1]["Solver"]["Termination Criteria"]["Testing"]["Target Average Reward"]
- 
   if (trainingRewardThreshold != -math.inf and trainingRewardThreshold != math.inf): 
    if (trainingRewardThreshold > maxPlotReward): maxPlotReward = trainingRewardThreshold
 
@@ -75,30 +94,38 @@ def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, max
    if (testingRewardThreshold < minPlotReward): minPlotReward = testingRewardThreshold
  
   # Getting average cumulative reward statistics
-  
-  meanHistory = [ rewardHistory[0] ]
-  confIntervalLowerHistory= [ rewardHistory[0] ]
-  confIntervalUpperHistory= [ rewardHistory[0] ]
-  for i in range(1, len(rewardHistory)):
-   startPos = i - int(averageDepth)
-   if (startPos < 0): startPos = 0
-   endPos = i
-   data = rewardHistory[startPos:endPos]
-   mean = np.mean(data)
-   stdDev = np.std(data)
-   if showCI > 0.0:
-    ciLow = np.percentile(data, 50-50*showCI)
-    ciUp = np.percentile(data, 50+50*showCI)
-    confIntervalLowerHistory.append(ciLow)
-    confIntervalUpperHistory.append(ciUp)
-   meanHistory.append(mean)
-  meanHistory = np.array(meanHistory)
-  confIntervalLowerHistory = np.array(confIntervalLowerHistory)
-  confIntervalUpperHistory = np.array(confIntervalUpperHistory)
+  cumRewards = np.cumsum(rewardHistory)
+  meanHistoryStart = cumRewards[:averageDepth]/np.arange(1,averageDepth+1)
+  meanHistoryEnd = (cumRewards[averageDepth:]-cumRewards[:-averageDepth])/float(averageDepth)
+  meanHistory = np.append(meanHistoryStart, meanHistoryEnd)
+
+  confIntervalLowerHistory = None
+  confIntervalUpperHistory = None
+
+  # Calculating confidence intervals
+  if showCI > 0.0:
+    confIntervalLowerHistory= [ rewardHistory[0] ]
+    confIntervalUpperHistory= [ rewardHistory[0] ]
+
+    for i in range(1, len(rewardHistory)):
+      startPos = max(i - averageDepth, 0)
+      endPos = i
+      data = rewardHistory[startPos:endPos]
+      ciLow = np.percentile(data, 50-50*showCI)
+      ciUp = np.percentile(data, 50+50*showCI)
+      confIntervalLowerHistory.append(ciLow)
+      confIntervalUpperHistory.append(ciUp)
+      
+    confIntervalLowerHistory = np.array(confIntervalLowerHistory)
+    confIntervalUpperHistory = np.array(confIntervalUpperHistory)
 
   # Plotting common plot
-  ax.plot(cumulativeObsList, rewardHistory, 'x', markersize=1.3, color=cmap(colCurrIndex), alpha=0.15, zorder=0)
-  ax.plot(cumulativeObsList, meanHistory, '-', color=cmap(colCurrIndex), lineWidth=3.0, zorder=1) 
+  ax.plot(cumulativeObsArr, rewardHistory, 'x', markersize=1.3, color=cmap(colCurrIndex), alpha=0.15, zorder=0)
+  ax.plot(cumulativeObsArr, meanHistory, '-', color=cmap(colCurrIndex), lineWidth=3.0, zorder=1) 
+
+  # Plotting confidence intervals
+  if showCI > 0.:
+    ax.fill_between(cumulativeObsArr, confIntervalLowerHistory, confIntervalUpperHistory, color=cmap(colCurrIndex), alpha=0.2)
 
   # Updating color index
   if (len(results) > 1):
@@ -122,37 +149,17 @@ def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, max
 def parseResults(dir):
 
  results = [ ]
- 
+
  for p in dir:
   configFile = p + '/latest'
   if (not os.path.isfile(configFile)):
-    print("[Korali] Error: Did not find any results in the {0} folder...".format(p))
-    exit(-1)
+   print("[Korali] Error: Did not find any results in the {0} folder...".format(p))
+   exit(-1)
  
   with open(configFile) as f:
-    js = json.load(f)
-  configRunId = js['Run ID']
- 
-  resultFiles = [
-      f for f in os.listdir(p)
-      if os.path.isfile(os.path.join(p, f)) and f.startswith('gen')
-  ]
-  resultFiles = sorted(resultFiles)
- 
-  genList = [ ]
- 
-  for file in resultFiles:
-   if (not 'aux' in file):
-    with open(p + '/' + file) as f:
-      genJs = json.load(f)
-      solverRunId = genJs['Run ID']
- 
-      if (configRunId == solverRunId):
-        curGen = genJs['Current Generation']
-        genList.append(genJs)
- 
-  del genList[0]
-  results.append(genList)
+    data = json.load(f)
+
+  results.append(data)
   
  return results
  
@@ -178,6 +185,7 @@ if __name__ == '__main__':
  parser.add_argument(
      '--maxObservations',
      help='Maximum observations (x-axis) to display',
+     type=int,
      default=None,
      required=False)
  parser.add_argument(
@@ -203,7 +211,8 @@ if __name__ == '__main__':
  parser.add_argument(
       '--averageDepth',
       help='Specifies the depth for plotting average',
-      default=300,
+      type=int,
+      default=100,
       required=False)
  parser.add_argument(
       '--showCI',
@@ -212,10 +221,19 @@ if __name__ == '__main__':
       default=0.0,
       required=False)
  parser.add_argument(
+      '--aggregate',
+      help='Aggregate multiple runs and plot result summary.',
+      action='store_true')
+ parser.add_argument(
       '--test',
       help='Run without graphics (for testing purpose)',
       action='store_true',
       required=False)
+ parser.add_argument(
+      '--output',
+      help='Indicates the output file path. If not specified, it prints to screen.',
+      required=False)
+
  args = parser.parse_args()
 
  ### Validating input
@@ -224,9 +242,13 @@ if __name__ == '__main__':
   print("[Korali] Argument of confidence interval must be in [0,1].")
   exit(-1)
 
+ if args.output:
+    validateOutput(args.output)
+
  ### Setup without graphics, if needed
  
- if (args.test): matplotlib.use('Agg')
+ if (args.test or args.output): 
+     matplotlib.use('Agg')
  
  ### Reading values from result files
 
@@ -241,9 +263,8 @@ if __name__ == '__main__':
  ax1 = fig1.add_subplot(111)
      
  ### Creating plots
-     
- plotRewardHistory(ax1, args.dir, results, args.minReward, args.maxReward, args.averageDepth, args.maxObservations, args.showCI)
-
+  
+ plotRewardHistory(ax1, args.dir, results, args.minReward, args.maxReward, args.averageDepth, args.maxObservations, args.showCI, args.aggregate)
  plt.draw()
  
  ### Printing live results if update frequency > 0
@@ -257,7 +278,7 @@ if __name__ == '__main__':
    results = parseResults(args.dir)
    plt.pause(fq)
    ax1.clear()
-   plotRewardHistory(ax1, args.dir, results, args.minReward, args.maxReward, args.averageDepth, args.maxObservations, args.showCI)
+   plotRewardHistory(ax1, args.dir, results, args.minReward, args.maxReward, args.averageDepth, args.maxObservations, args.showCI, args.aggregate)
    plt.draw()
    
    # Check if maximum time exceeded
@@ -267,5 +288,17 @@ if __name__ == '__main__':
     if (elapsedTime > maxTime):
      print('[Korali] Maximum plotting time reached. Exiting...') 
      exit(0)
-   
- plt.show() 
+ 
+
+   plt.show()
+  exit(0)
+
+ if (args.output is None):
+   plt.show()
+ else:
+   if args.output.endswith('.eps'):
+     plt.savefig(args.output, format='eps')
+   elif args.output.endswith('.svg'):
+     plt.savefig(args.output, format='svg')
+   else:
+     plt.savefig(args.output, format='png')

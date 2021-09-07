@@ -1,3 +1,3 @@
 subdir('cxx')
-subdir('plotter')
+subdir('plot')
 subdir('rlview')

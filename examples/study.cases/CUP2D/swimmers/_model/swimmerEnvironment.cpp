@@ -1,7 +1,7 @@
 //  Korali environment for CubismUP-2D
 //  Copyright (c) 2020 CSE-Lab, ETH Zurich, Switzerland.
 
-#include "fishEnvironment.hpp"
+#include "swimmerEnvironment.hpp"
 #include <chrono>
 #include <filesystem>
 
@@ -56,10 +56,11 @@ void runEnvironment(korali::Sample &s)
   auto state = agent->state(object);
   s["State"] = state;
 
-  // Setting initial time and step conditions
+  // Variables for time and step conditions
   double t = 0;        // Current time
-  double tNextAct = 0; // Time until next action
   size_t curStep = 0;  // current Step
+  double dtAct;        // Time until next action
+  double tNextAct = 0; // Time of next action     
 
   // Setting maximum number of steps before truncation
   size_t maxSteps = 200;
@@ -68,9 +69,6 @@ void runEnvironment(korali::Sample &s)
   bool done = false;
   while (done == false && curStep < maxSteps)
   {
-    // Getting initial time
-    auto beginTime = std::chrono::steady_clock::now(); // Profiling
-
     // Getting new action
     s.update();
 
@@ -81,42 +79,23 @@ void runEnvironment(korali::Sample &s)
     agent->act(t, action);
 
     // Run the simulation until next action is required
-    tNextAct += agent->getLearnTPeriod() * 0.5;
+    dtAct = agent->getLearnTPeriod() * 0.5;
+    tNextAct += dtAct;
     while ( t < tNextAct )
     {
-      // Advance simulation
-      const double dt = _environment->calcMaxTimestep();
+      // Compute timestep
+      const double dt = std::min(_environment->calcMaxTimestep(), dtAct);
       t += dt;
 
-      // Advance simulation and check whether it is correct
-      if (_environment->advance(dt))
-      {
-        fprintf(stderr, "Error during environment\n");
-        exit(-1);
-      }
+      // Advance simulation
+      _environment->advance(dt);
 
-      // Re-check if simulation is done.
+      // Check for terminal state.
       done = isTerminal(agent, object);
     }
 
     // Reward is -10 if state is terminal; otherwise obtain it from the agent's efficiency
     double reward = done ? -10.0 : agent->EffPDefBnd;
-
-    // Getting ending time
-    auto endTime = std::chrono::steady_clock::now(); // Profiling
-    double actionTime = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - beginTime).count() / 1.0e+9;
-
-    // Printing Information:
-    printf("[Korali] Sample %lu - Step: %lu/%lu\n", sampleId, curStep, maxSteps);
-    printf("[Korali] State: [ %.3f", state[0]);
-    for (size_t i = 1; i < state.size(); i++) printf(", %.3f", state[i]);
-    printf("]\n");
-    printf("[Korali] Action: [ %.3f, %.3f ]\n", action[0], action[1]);
-    printf("[Korali] Reward: %.3f\n", reward);
-    printf("[Korali] Terminal?: %d\n", done);
-    printf("[Korali] Time: %.3fs\n", actionTime);
-    printf("[Korali] -------------------------------------------------------\n");
-    fflush(stdout);
 
     // Obtaining new agent state
     state = agent->state(object);
@@ -126,6 +105,17 @@ void runEnvironment(korali::Sample &s)
 
     // Storing new state
     s["State"] = state;
+
+    // Printing Information:
+    printf("[Korali] Sample %lu - Step: %lu/%lu\n", sampleId, curStep, maxSteps);
+    printf("[Korali] State: [ %.3f", state[0]);
+    for (size_t i = 1; i < state.size(); i++) printf(", %.3f", state[i]);
+    printf("]\n");
+    printf("[Korali] Action: [ %.3f, %.3f ]\n", action[0], action[1]);
+    printf("[Korali] Reward: %.3f\n", reward);
+    printf("[Korali] Terminal?: %d\n", done);
+    printf("[Korali] -------------------------------------------------------\n");
+    fflush(stdout);
 
     // Advancing to next step
     curStep++;

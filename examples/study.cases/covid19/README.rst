@@ -57,7 +57,7 @@ Check the sampled distribution with
 
 .. code-block:: bash
 
-   python3 -m korali.plotter --dir data/_korali_samples/
+   python3 -m korali.plot --dir data/_korali_samples/
 
 In the diagonal of the figure, the marginal distribution of the parameters is shown in order, beta, gamma and sigma. The off-diagonal elements of the figure are plots of the pair the marginal distributions.
 

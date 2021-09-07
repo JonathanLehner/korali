@@ -12,17 +12,19 @@ e = korali.Experiment()
 theta = korali.Experiment()
 psi = korali.Experiment()
 
+x = getReferencePoints("_setup/data/", 0)
 theta.loadState('_setup/results_phase_1/000/latest')
 psi.loadState('_setup/results_phase_2/latest')
 
 e["Problem"]["Type"] = "Hierarchical/Theta"
-e["Problem"]["Theta Experiment"] = theta
 e["Problem"]["Psi Experiment"] = psi
+e["Problem"]["Sub Experiment"] = theta
+e["Problem"]["Sub Experiment Model"] = lambda d: logistic(x, d)
 
 e["Solver"]["Type"] = "Sampler/TMCMC"
 e["Solver"]["Population Size"] = 1000
 e["Solver"]["Termination Criteria"]["Max Generations"] = 30
-e["Solver"]["Default Burn In"] = 1
+e["Solver"]["Burn In"] = 1
 e["Solver"]["Target Coefficient Of Variation"] = 0.6
 
 e["Random Seed"] = 0xC0FFEE

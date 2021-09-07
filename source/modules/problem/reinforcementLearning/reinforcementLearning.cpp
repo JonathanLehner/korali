@@ -66,15 +66,13 @@ void __environmentWrapper()
   (*agent)["Launch Id"] = _launchId++;
   agent->run(__envFunctionId);
 
-  if ((*agent)["Termination"] == "Non Terminal")
-    KORALI_LOG_ERROR("Environment function terminated, but agent termination status (success or truncated) was not set.\n");
+  if ((*agent)["Termination"] == "Non Terminal") KORALI_LOG_ERROR("Environment function terminated, but agent termination status (success or truncated) was not set.\n");
 
   bool terminationRecognized = false;
   if ((*agent)["Termination"] == "Terminal") terminationRecognized = true;
   if ((*agent)["Termination"] == "Truncated") terminationRecognized = true;
 
-  if (terminationRecognized == false)
-    KORALI_LOG_ERROR("Environment function terminated, but agent termination status (%s) is neither 'Terminal' nor 'Truncated'.\n", (*agent)["Termination"].get<std::string>().c_str());
+  if (terminationRecognized == false) KORALI_LOG_ERROR("Environment function terminated, but agent termination status (%s) is neither 'Terminal' nor 'Truncated'.\n", (*agent)["Termination"].get<std::string>().c_str());
 
   co_switch(agent->_workerThread);
 
@@ -364,8 +362,7 @@ void ReinforcementLearning::runEnvironment(Sample &agent)
     if (agent["State"][i].size() != _stateVectorSize) KORALI_LOG_ERROR("Agents state vector %lu returned with the wrong size: %lu, expected: %lu.\n", i, agent["State"][i].size(), _stateVectorSize);
 
     for (size_t j = 0; j < _stateVectorSize; j++)
-      if (std::isfinite(agent["State"][i][j].get<float>()) == false)
-        KORALI_LOG_ERROR("Agent %lu state variable %lu returned an invalid value: %f\n", i, j, agent["State"][i][j].get<float>());
+      if (std::isfinite(agent["State"][i][j].get<float>()) == false) KORALI_LOG_ERROR("Agent %lu state variable %lu returned an invalid value: %f\n", i, j, agent["State"][i][j].get<float>());
   }
 
   // Normalizing State
@@ -395,8 +392,7 @@ void ReinforcementLearning::runEnvironment(Sample &agent)
 
   // Sanity checks for reward
   for (size_t i = 0; i < _agentsPerEnvironment; i++)
-    if (std::isfinite(agent["Reward"][i].get<float>()) == false)
-      KORALI_LOG_ERROR("Agent %lu reward returned an invalid value: %f\n", i, agent["Reward"][i].get<float>());
+    if (std::isfinite(agent["Reward"][i].get<float>()) == false) KORALI_LOG_ERROR("Agent %lu reward returned an invalid value: %f\n", i, agent["Reward"][i].get<float>());
 }
 
 void ReinforcementLearning::setConfiguration(knlohmann::json& js) 

@@ -1093,17 +1093,17 @@ namespace
 
    samplerJs = baseOptJs;
    experimentJs = baseExpJs;
-   samplerJs.erase("Default Burn In");
+   samplerJs.erase("Burn In");
    ASSERT_ANY_THROW(sampler->setConfiguration(samplerJs));
 
    samplerJs = baseOptJs;
    experimentJs = baseExpJs;
-   samplerJs["Default Burn In"] = "Not a Number";
+   samplerJs["Burn In"] = "Not a Number";
    ASSERT_ANY_THROW(sampler->setConfiguration(samplerJs));
 
    samplerJs = baseOptJs;
    experimentJs = baseExpJs;
-   samplerJs["Default Burn In"] = 4;
+   samplerJs["Burn In"] = 4;
    ASSERT_NO_THROW(sampler->setConfiguration(samplerJs));
 
    samplerJs = baseOptJs;

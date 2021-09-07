@@ -6,21 +6,10 @@
 
 namespace korali
 {
-fAdagrad::fAdagrad(size_t nVars)
+fAdagrad::fAdagrad(size_t nVars) : fAdam(nVars)
 {
- // Variable Parameters
- _currentGeneration = 1;
- _nVars = nVars;
- _initialValues.resize(_nVars, 0.0);
- _currentValue.resize(_nVars, 0.0);
- _gradient.resize(_nVars, 0.0);
- _modelEvaluationCount = 0;
-
-  // Defaults
-  _eta = 0.001f;
-  _epsilon = 1e-08f;
-
   _s.resize(nVars);
+
   reset();
 }
 
@@ -36,6 +25,7 @@ void fAdagrad::reset()
       throw std::runtime_error("Bad Inputs for Optimizer.");
     }
 
+#pragma omp parallel for simd
   for (size_t i = 0; i < _nVars; i++)
   {
     _currentValue[i] = _initialValues[i];
@@ -53,10 +43,11 @@ void fAdagrad::processResult(float evaluation, std::vector<float> &gradient)
     throw std::runtime_error("Bad Inputs for Optimizer.");
   }
 
+#pragma omp parallel for simd
   for (size_t i = 0; i < _nVars; i++)
   {
     _s[i] = _s[i] + (gradient[i] * gradient[i]);
-    _currentValue[i] = _currentValue[i] + (_eta / std::sqrt(_s[i] + _epsilon)) * gradient[i];
+    _currentValue[i] += (_eta / std::sqrt(_s[i] + _epsilon)) * gradient[i];
   }
 
   _modelEvaluationCount++;

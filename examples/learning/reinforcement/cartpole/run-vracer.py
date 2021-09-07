@@ -90,17 +90,13 @@ e["Solver"]["Mini Batch"]["Size"] = 32
 
 e["Solver"]["State Rescaling"]["Enabled"] = False
 e["Solver"]["Reward"]["Rescaling"]["Enabled"] = False
-e["Solver"]["Reward"]["Rescaling"]["Frequency"] = 1000
 
 ### Configuring the neural network and its hidden layers
 
-e["Solver"]["Policy"]["Distribution"] = "Normal"
-#e["Solver"]["Policy"]["Distribution"] = "Squashed Normal"
-#e["Solver"]["Policy"]["Distribution"] = "Clipped Normal"
-#e["Solver"]["Policy"]["Distribution"] = "Truncated Normal"
 e["Solver"]["Learning Rate"] = 1e-4
 e["Solver"]["Neural Network"]["Engine"] = args.engine
 e["Solver"]["Neural Network"]["Optimizer"] = args.optimizer
+e["Solver"]["Policy"]["Distribution"] = "Clipped Normal"
 
 e["Solver"]["Neural Network"]["Hidden Layers"][0]["Type"] = "Layer/Linear"
 e["Solver"]["Neural Network"]["Hidden Layers"][0]["Output Channels"] = 32

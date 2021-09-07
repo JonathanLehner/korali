@@ -39,6 +39,7 @@ void fMadGrad::reset()
       throw std::runtime_error("Bad Inputs for Optimizer.");
     }
 
+#pragma omp parallel for simd
   for (size_t i = 0; i < _nVars; i++)
   {
     _currentValue[i] = _initialValues[i];
@@ -60,6 +61,7 @@ void fMadGrad::processResult(float evaluation, std::vector<float> &gradient)
 
   float lambda = _eta; // * std::sqrt((float)_modelEvaluationCount + 1.0f);
 
+#pragma omp parallel for simd
   for (size_t i = 0; i < _nVars; i++)
   {
     _s[i] = _s[i] + lambda * gradient[i];

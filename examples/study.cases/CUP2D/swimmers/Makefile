@@ -12,13 +12,13 @@ all: swimmer
 
 swimmer: $(SWIMMER)
 
-$(SWIMMER): %: %.o fishEnvironment.o ${CUPFOLDER}/makefiles/libcup.a
+$(SWIMMER): %: %.o swimmerEnvironment.o ${CUPFOLDER}/makefiles/libcup.a
 	$(KORALICXX) -o $@ $^ $(KORALILIBS) $(CUBISMLIBS)
 
 %.o: %.cpp
 	$(KORALICXX) -c $< $(KORALICFLAGS) $(CUBISMCFLAGS)
 
-fishEnvironment.o: _model/fishEnvironment.cpp
+swimmerEnvironment.o: _model/swimmerEnvironment.cpp
 	$(KORALICXX) -c $< $(KORALICFLAGS) $(CUBISMCFLAGS)
 
 .PHONY: clean

@@ -38,6 +38,7 @@ void fRMSProp::reset()
       throw std::runtime_error("Bad Inputs for Optimizer.");
     }
 
+#pragma omp parallel for simd
   for (size_t i = 0; i < _nVars; i++)
   {
     _currentValue[i] = _initialValues[i];
@@ -56,6 +57,7 @@ void fRMSProp::processResult(float evaluation, std::vector<float> &gradient)
     throw std::runtime_error("Bad Inputs for Optimizer.");
   }
 
+#pragma omp parallel for simd
   for (size_t i = 0; i < _nVars; i++)
   {
     _r[i] = (1.0f - _decay) * (gradient[i] * gradient[i]) + _decay * _r[i];

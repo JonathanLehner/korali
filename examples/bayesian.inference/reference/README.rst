@@ -239,7 +239,7 @@ The results are saved in the folder `_korali_result/`.
 
 Plotting
 ---------------------------
-You can see the results of CMA-ES by running the command, `python3 -m korali.plotter --dir _korali_result_cmaes`
+You can see the results of CMA-ES by running the command, `python3 -m korali.plot --dir _korali_result_cmaes`
 
 
 Sampling with TMCMC
@@ -270,7 +270,7 @@ The results are saved in the folder `_korali_result/`.
 Plottting
 ---------------------------
 
-You can see a histogram of the results by running the command `python3 -m korali.plotter --dir _korali_result_tmcmc`
+You can see a histogram of the results by running the command `python3 -m korali.plot --dir _korali_result_tmcmc`
 
 
 Sampling with Nested Sampling
@@ -310,4 +310,4 @@ We are now ready to run our example: `./run-nested.py` respectively `./run-multi
 Plottting
 ---------------------------
 
-You can see a histogram of the results by running the command `python3 -m korali.plotter --dir _korali_result_nested`
+You can see a histogram of the results by running the command `python3 -m korali.plot --dir _korali_result_nested`

@@ -12,25 +12,20 @@ namespace hierarchical
 
 void Theta::initialize()
 {
+  // Psi Experiment
+
   // Setting experiment configurations to actual korali experiments
   _psiExperimentObject._js.getJson() = _psiExperiment;
-  _thetaExperimentObject._js.getJson() = _thetaExperiment;
 
   // Running initialization to verify that the configuration is correct
   _psiExperimentObject.initialize();
-  _thetaExperimentObject.initialize();
 
   _psiProblem = dynamic_cast<Psi *>(_psiExperimentObject._problem);
   if (_psiProblem == NULL) KORALI_LOG_ERROR("Psi experiment passed is not of type Hierarchical/Psi\n");
 
-  if (_thetaExperiment["Is Finished"] == false)
-    KORALI_LOG_ERROR("The Hierarchical Bayesian (Theta) requires that the theta problem has run completely, but this one has not.\n");
-
   // Now inheriting Sub problem's variables
-  _k->_distributions = _thetaExperimentObject._distributions;
-  _k->_variables = _thetaExperimentObject._variables;
-
-  _thetaVariableCount = _thetaExperimentObject._variables.size();
+  _k->_distributions = _subExperimentObject._distributions;
+  _k->_variables = _subExperimentObject._variables;
   _psiVariableCount = _psiExperimentObject._variables.size();
 
   // Loading Psi problem results
@@ -46,21 +41,29 @@ void Theta::initialize()
       KORALI_LOG_ERROR("Non finite (%lf) prior has been detected at sample %zu in Psi problem.\n", expPrior, i);
   }
 
-  // Loading Theta problem results
-  _thetaProblemSampleCount = _thetaExperiment["Solver"]["Chain Leaders LogLikelihoods"].size();
-  _thetaProblemSampleLogLikelihoods = _thetaExperiment["Solver"]["Sample LogLikelihood Database"].get<std::vector<double>>();
-  _thetaProblemSampleLogPriors = _thetaExperiment["Solver"]["Sample LogPrior Database"].get<std::vector<double>>();
-  _thetaProblemSampleCoordinates = _thetaExperiment["Solver"]["Sample Database"].get<std::vector<std::vector<double>>>();
+  /// Sub Experiment
+  if (_subExperiment["Is Finished"] == false)
+    KORALI_LOG_ERROR("The Hierarchical Bayesian (Theta) requires that the sub problem has run completely, but this one has not.\n");
 
-  for (size_t i = 0; i < _thetaProblemSampleLogPriors.size(); i++)
+  _subExperimentObject._js.getJson() = _subExperiment;
+  _subExperimentObject.initialize();
+  _subProblemVariableCount = _subExperimentObject._variables.size();
+
+  // Loading Theta problem results
+  _subProblemSampleCount = _subExperiment["Solver"]["Chain Leaders LogLikelihoods"].size();
+  _subProblemSampleLogLikelihoods = _subExperiment["Solver"]["Sample LogLikelihood Database"].get<std::vector<double>>();
+  _subProblemSampleLogPriors = _subExperiment["Solver"]["Sample LogPrior Database"].get<std::vector<double>>();
+  _subProblemSampleCoordinates = _subExperiment["Solver"]["Sample Database"].get<std::vector<std::vector<double>>>();
+
+  for (size_t i = 0; i < _subProblemSampleLogPriors.size(); i++)
   {
-    double expPrior = exp(_thetaProblemSampleLogPriors[i]);
+    double expPrior = exp(_subProblemSampleLogPriors[i]);
     if (std::isfinite(expPrior) == false)
-      KORALI_LOG_ERROR("Non finite (%lf) prior has been detected at sample %zu in Theta problem.\n", expPrior, i);
+      KORALI_LOG_ERROR("Non finite (%lf) prior has been detected at sample %zu in sub problem.\n", expPrior, i);
   }
 
   std::vector<double> logValues;
-  logValues.resize(_thetaProblemSampleCount);
+  logValues.resize(_subProblemSampleCount);
 
   _psiProblem = dynamic_cast<Psi *>(_psiProblem);
 
@@ -71,25 +74,41 @@ void Theta::initialize()
 
     _psiProblem->updateConditionalPriors(psiSample);
 
-    for (size_t j = 0; j < _thetaProblemSampleCount; j++)
+    for (size_t j = 0; j < _subProblemSampleCount; j++)
     {
       double logConditionalPrior = 0;
-      for (size_t k = 0; k < _thetaVariableCount; k++)
-        logConditionalPrior += _psiExperimentObject._distributions[_psiProblem->_conditionalPriorIndexes[k]]->getLogDensity(_thetaProblemSampleCoordinates[j][k]);
+      for (size_t k = 0; k < _subProblemVariableCount; k++)
+        logConditionalPrior += _psiExperimentObject._distributions[_psiProblem->_conditionalPriorIndexes[k]]->getLogDensity(_subProblemSampleCoordinates[j][k]);
 
-      logValues[j] = logConditionalPrior - _thetaProblemSampleLogPriors[j];
+      logValues[j] = logConditionalPrior - _subProblemSampleLogPriors[j];
     }
 
-    double localSum = -log(_thetaProblemSampleCount) + logSumExp(logValues);
+    double localSum = -log(_subProblemSampleCount) + logSumExp(logValues);
 
     _precomputedLogDenominator.push_back(localSum);
   }
+
+  // Now inheriting Sub problem's variables and distributions
+  _k->_variables.clear();
+  for (size_t i = 0; i < _subExperimentObject._variables.size(); i++)
+    _k->_variables.push_back(_subExperimentObject._variables[i]);
+
+  _k->_distributions.clear();
+  for (size_t i = 0; i < _subExperimentObject._distributions.size(); i++)
+    _k->_distributions.push_back(_subExperimentObject._distributions[i]);
 
   Hierarchical::initialize();
 }
 
 void Theta::evaluateLogLikelihood(Sample &sample)
 {
+  double logLikelihood = 0.0;
+
+  dynamic_cast<problem::Bayesian *>(_subExperimentObject._problem)->evaluateLoglikelihood(sample);
+
+  std::vector<double> psiSample;
+  psiSample.resize(_psiVariableCount);
+
   std::vector<double> logValues;
   logValues.resize(_psiProblemSampleCount);
 
@@ -101,7 +120,7 @@ void Theta::evaluateLogLikelihood(Sample &sample)
     _psiProblem->updateConditionalPriors(psiSample);
 
     double logConditionalPrior = 0.;
-    for (size_t k = 0; k < _thetaVariableCount; k++)
+    for (size_t k = 0; k < _subProblemVariableCount; k++)
       logConditionalPrior += _psiExperimentObject._distributions[_psiProblem->_conditionalPriorIndexes[k]]->getLogDensity(sample["Parameters"][k]);
 
     logValues[i] = logConditionalPrior - _precomputedLogDenominator[i];
@@ -114,13 +133,13 @@ void Theta::setConfiguration(knlohmann::json& js)
 {
  if (isDefined(js, "Results"))  eraseValue(js, "Results");
 
- if (isDefined(js, "Theta Experiment"))
+ if (isDefined(js, "Sub Experiment"))
  {
- _thetaExperiment = js["Theta Experiment"].get<knlohmann::json>();
+ _subExperiment = js["Sub Experiment"].get<knlohmann::json>();
 
-   eraseValue(js, "Theta Experiment");
+   eraseValue(js, "Sub Experiment");
  }
-  else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['Theta Experiment'] required by theta.\n"); 
+  else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['Sub Experiment'] required by theta.\n"); 
 
  if (isDefined(js, "Psi Experiment"))
  {
@@ -129,6 +148,15 @@ void Theta::setConfiguration(knlohmann::json& js)
    eraseValue(js, "Psi Experiment");
  }
   else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['Psi Experiment'] required by theta.\n"); 
+
+ if (isDefined(js, "Sub Experiment Model"))
+ {
+ try { _subExperimentModel = js["Sub Experiment Model"].get<std::uint64_t>();
+} catch (const std::exception& e)
+ { KORALI_LOG_ERROR(" + Object: [ theta ] \n + Key:    ['Sub Experiment Model']\n%s", e.what()); } 
+   eraseValue(js, "Sub Experiment Model");
+ }
+  else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['Sub Experiment Model'] required by theta.\n"); 
 
  Hierarchical::setConfiguration(js);
  _type = "hierarchical/theta";
@@ -140,8 +168,9 @@ void Theta::getConfiguration(knlohmann::json& js)
 {
 
  js["Type"] = _type;
-   js["Theta Experiment"] = _thetaExperiment;
+   js["Sub Experiment"] = _subExperiment;
    js["Psi Experiment"] = _psiExperiment;
+   js["Sub Experiment Model"] = _subExperimentModel;
  Hierarchical::getConfiguration(js);
 } 
 

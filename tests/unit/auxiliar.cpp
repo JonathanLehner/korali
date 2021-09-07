@@ -28,7 +28,7 @@ namespace
 
  TEST(Auxiliar, Math)
  {
-  ASSERT_NO_THROW(safeLogMinus(1.0, 2.0));
+  ASSERT_ANY_THROW(safeLogMinus(1.0, 2.0));
   ASSERT_NO_THROW(safeLogMinus(2.0, 1.0));
  }
 

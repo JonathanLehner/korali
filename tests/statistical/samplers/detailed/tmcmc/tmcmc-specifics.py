@@ -41,7 +41,7 @@ e["Solver"]["Type"] = "Sampler/TMCMC"
 e["Solver"]["Population Size"] = 5000
 e["Solver"]["Covariance Scaling"] = 0.001
 
-e["Solver"]["Default Burn In"] = 5
+e["Solver"]["Burn In"] = 5
 e["Solver"]["Per Generation Burn In"] = [10, 7]
 e["Solver"]["Max Chain Length"] = 1
 e["Solver"]["Target Coefficient Of Variation"] = 0.5
@@ -93,7 +93,7 @@ for filename in resultfiles:
         gen, path))
 
     # Testing Burn In Assignments
-    assert_value(data['Solver']['Default Burn In'], 5)
+    assert_value(data['Solver']['Burn In'], 5)
     #assert_value( data['Solver']['Current Burn In'], currentBurnIn[gen] )
 
     # Testing Correctness of (min/max) Rho Update

@@ -3,7 +3,7 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-from korali.plotter.helpers import hlsColors, drawMulticoloredLine
+from korali.plot.helpers import hlsColors, drawMulticoloredLine
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # Plot histogram of sampes in diagonal
 def plot_histogram(ax, theta):
   dim = theta.shape[1]
-  num_bins = 30
+  num_bins = 50
 
   for i in range(dim):
 
@@ -66,7 +66,7 @@ def plot_upper_triangle(ax, theta, lik):
         ax[i, j].scatter(
             theta[:, j], theta[:, i], marker='o', s=3, alpha=0.5, c=lik)
       else:
-        ax[i, j].plot(theta[:, j], theta[:, i], marker='.', s=1, alpha=0.5)
+        ax[i, j].plot(theta[:, j], theta[:, i], '.', markersize=1)
       ax[i, j].set_xticklabels([])
       ax[i, j].set_yticklabels([])
       ax[i, j].grid(b=True, which='both')
@@ -98,23 +98,36 @@ def plot_lower_triangle(ax, theta):
 
 
 def plotGen(genList, idx):
-  numdim = len(genList[idx]['Variables'])
-  samples = genList[idx]['Solver']['Sample Database']
-  llk = np.array(genList[idx]['Solver']['Sample LogLikelihood Database'])
-  lpr = np.array(genList[idx]['Solver']['Sample LogPrior Database'])
+  numgens = len(genList)
+
+  lastGen = 0
+  for i in genList:
+    if genList[i]['Current Generation'] > lastGen:
+      lastGen = genList[i]['Current Generation']
+
+  numdim = len(genList[lastGen]['Variables'])
+  samples = np.array(genList[lastGen]['Results']['Posterior Samples Database'])
+
+  isFinite = [~np.isnan(s - s).any() for s in samples]  # Filter trick
+  samples = samples[isFinite]
+
+  lpr = np.array(
+      genList[lastGen]['Results']['Posterior Samples LogPrior Database'])
+  lpr = lpr[isFinite]
+  llk = np.array(
+      genList[lastGen]['Results']['Posterior Samples LogLikelihood Database'])
+  llk = llk[isFinite]
   lpo = (llk + lpr).tolist()
-  lpo, samples = zip(*sorted(zip(lpo, samples)))
+
+  lpo, samples = zip(*(sorted(zip(lpo, samples))))
   numentries = len(samples)
 
   fig, ax = plt.subplots(numdim, numdim, figsize=(8, 8))
   samplesTmp = np.reshape(samples, (numentries, numdim))
-  version = genList[idx]['Solver']['Version']
   plt.suptitle(
-      '{0} Plotter - \nNumber of Samples {1}'.format(
-          str(version), str(numentries)).strip(),
+      'Nested Plotter - \nNumber of Samples {0}'.format(str(numentries)),
       fontweight='bold',
       fontsize=12)
-
   plot_histogram(ax, samplesTmp)
   plot_upper_triangle(ax, samplesTmp, lpo)
   plot_lower_triangle(ax, samplesTmp)

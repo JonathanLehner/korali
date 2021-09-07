@@ -22,11 +22,11 @@ Example 1 (distance :math:`\beta` from shore known, location :math:`\alpha` at c
 .. code-block:: bash                                                            
 
   ./example_1
-  python -m korali.plotter --dir _results_example_1                             
+  python -m korali.plot --dir _results_example_1                             
                                                                                  
 Example 2 (distance :math:`\beta` & location :math:`\alpha` unknown)            
                                                                                  
 .. code-block:: bash                                                            
 
   ./example_2
-  python -m korali.plotter --dir _results_example_2                             
+  python -m korali.plot --dir _results_example_2                             

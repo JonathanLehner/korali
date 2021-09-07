@@ -34,7 +34,7 @@ e["Variables"][0]["Prior Distribution"] = "Uniform 0"
 e["Solver"]["Type"] = "Sampler/TMCMC"
 e["Solver"]["Population Size"] = 5000
 e["Solver"]["Covariance Scaling"] = 0.01
-e["Solver"]["Default Burn In"] = 3
+e["Solver"]["Burn In"] = 3
 e["Solver"]["Target Coefficient Of Variation"] = 0.4
 
 # Running Korali
