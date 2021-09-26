@@ -117,6 +117,7 @@ class Distributed : public Conduit
   */
   int getRootRank();
   bool isRoot() override;
+  bool isWorkerLeadRank() override;
 };
 
 } //conduit

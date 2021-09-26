@@ -26,4 +26,6 @@ source settings.sh
 
 set -ux
 
-$mpiflags ./run-vracer-swimmer ${OPTIONS} -shapes "${OBJECTS}"
+# gdb --args $mpiflags ./run-vracer-swimmer
+# gdb --args ./run-vracer-swimmer ${OPTIONS} -shapes "${OBJECTS}" -nAgents $NAGENTS
+ddt $mpiflags ./run-vracer-swimmer ${OPTIONS} -shapes "${OBJECTS}" -nAgents $NAGENTS

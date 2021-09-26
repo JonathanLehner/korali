@@ -32,9 +32,7 @@ if (found == True):
 e["Problem"]["Type"] = "Reinforcement Learning / Discrete"
 e["Problem"]["Environment Function"] = env
 e["Problem"]["Actions Between Policy Updates"] = 500
-e["Problem"]["Training Reward Threshold"] = 450
-e["Problem"]["Policy Testing Episodes"] = 10
-e["Problem"]["Possible Actions"] = [ [0], [1], [2], [3], [4], [5], [6], [7], [8] ]
+e["Problem"]["Possible Actions"] = [ [ -10.0 ], [  10.0 ] ]
                                      
 ### Defining State variables
 
@@ -75,10 +73,6 @@ e["Solver"]["Neural Network"]["Hidden Layers"][2]["Output Channels"] = 32
 
 e["Solver"]["Neural Network"]["Hidden Layers"][3]["Type"] = "Layer/Activation"
 e["Solver"]["Neural Network"]["Hidden Layers"][3]["Function"] = "Elementwise/Tanh"
-
-### Defining Termination Criteria
-
-e["Solver"]["Termination Criteria"]["Testing"]["Target Average Reward"] = 450
 
 ### Setting file output configuration
 

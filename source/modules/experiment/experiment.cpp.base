@@ -129,7 +129,7 @@ void __className__::saveState()
   if (_fileOutputUseMultipleFiles == true)
     sprintf(genFileName, "gen%08lu.json", _currentGeneration);
   else
-    sprintf(genFileName, "genLatest.json", _currentGeneration);
+    sprintf(genFileName, "genLatest.json");
 
   // If results directory doesn't exist, create it
   if (!dirExists(_fileOutputPath)) mkdir(_fileOutputPath);

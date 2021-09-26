@@ -23,9 +23,7 @@ def validateOutput(output):
 ##################### Plotting Reward History
 
 def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, maxObservations, showCI, aggregate):
-
  ## Setting initial x-axis (episode) and  y-axis (reward) limits
- 
  maxPlotObservations = -math.inf
  maxPlotReward = -math.inf
  minPlotReward = +math.inf
@@ -35,41 +33,47 @@ def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, max
  colCurrIndex = 0.0
 
  ## Reading the individual results
-
  unpackedResults = []
- for r in results:
-  
-  if (len(r) == 0): continue  
-  
-  cumulativeObsCountHistory = np.cumsum(np.array(r["Solver"]["Training"]["Experience History"]))
-  rewardHistory = np.array(r["Solver"]["Training"]["Reward History"])
-  trainingRewardThreshold = r["Problem"]["Training Reward Threshold"]
-  testingRewardThreshold = r["Solver"]["Termination Criteria"]["Testing"]["Target Average Reward"]
 
-  # Merge Results
-  if aggregate == True and len(unpackedResults) > 0:
+ for resId, r in enumerate(results):
+  environmentCount = r["Problem"]["Environment Count"]
+  nAgents = r["Problem"]["Agents Per Environment"]
+
+  ## Split results for multi envs
+  envIds = r["Solver"]["Training"]["Environment Id History"]
+  resultsFolder = dirs[resId]
+  del dirs[resId]
+  for envId in range(environmentCount):
+   dirs.insert(resId+envId, resultsFolder+" env {}".format(envId))
+   res = {}
+   res["Solver"] = { "Training" : { "Experience History" : [ exp for (env, exp) in zip (envIds, r["Solver"]["Training"]["Experience History"]) if env == envId ] } }
+   res["Solver"]["Training"]["Reward History"] = [ rew for (env, rew) in zip(envIds, r["Solver"]["Training"]["Reward History"]) if env == envId ]
+
+   cumulativeObsCountHistory = np.cumsum(np.array(res["Solver"]["Training"]["Experience History"])) / nAgents
+   rewardHistory = np.array(res["Solver"]["Training"]["Reward History"])
+
+   # Merge Results
+   if aggregate == True and len(unpackedResults) > 0:
     coH, rH, trTh, teTh = unpackedResults[0]
     aggCumObs = np.append(coH, cumulativeObsCountHistory)
     aggRewards = np.append(rH, rewardHistory)
 
     sortedAggRewards = np.array([r for _, r in sorted(zip(aggCumObs, aggRewards), key=lambda pair: pair[0])])
     sortedAggCumObs = np.sort(aggCumObs)
-    unpackedResults[0] = (sortedAggCumObs, sortedAggRewards, trainingRewardThreshold, testingRewardThreshold)
-
-  # Append Results
-  else:
-    unpackedResults.append( (cumulativeObsCountHistory, rewardHistory, trainingRewardThreshold, testingRewardThreshold) )
+    unpackedResults[0] = (sortedAggCumObs, sortedAggRewards)
+   # Append Results
+   else:
+    unpackedResults.append( (cumulativeObsCountHistory, rewardHistory) )
 
  ## Plotting the individual experiment results
-    
  for resId, r in enumerate(unpackedResults):
   
-  cumulativeObsArr, rewardHistory, trainingRewardThreshold, testingRewardThreshold = r
+  cumulativeObsArr, rewardHistory = r
   
   currObsCount = cumulativeObsArr[-1]
   
   # Updating common plot limits
- 
+
   if (currObsCount > maxPlotObservations): maxPlotObservations = currObsCount
   if (maxObservations): maxPlotObservations = int(maxObservations)
 
@@ -81,18 +85,6 @@ def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, max
    if (max(rewardHistory) < math.inf):
     maxPlotReward = max(rewardHistory)
 
-  if (trainingRewardThreshold != -math.inf and trainingRewardThreshold != math.inf): 
-   if (trainingRewardThreshold > maxPlotReward): maxPlotReward = trainingRewardThreshold
-
-  if (testingRewardThreshold != -math.inf and testingRewardThreshold != math.inf): 
-   if (testingRewardThreshold > maxPlotReward): maxPlotReward = testingRewardThreshold
-  
-  if (trainingRewardThreshold != -math.inf and trainingRewardThreshold != math.inf):   
-   if (trainingRewardThreshold < minPlotReward): minPlotReward = trainingRewardThreshold
-   
-  if (testingRewardThreshold != -math.inf and testingRewardThreshold != math.inf): 
-   if (testingRewardThreshold < minPlotReward): minPlotReward = testingRewardThreshold
- 
   # Getting average cumulative reward statistics
   cumRewards = np.cumsum(rewardHistory)
   meanHistoryStart = cumRewards[:averageDepth]/np.arange(1,averageDepth+1)
@@ -121,7 +113,7 @@ def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, max
 
   # Plotting common plot
   ax.plot(cumulativeObsArr, rewardHistory, 'x', markersize=1.3, color=cmap(colCurrIndex), alpha=0.15, zorder=0)
-  ax.plot(cumulativeObsArr, meanHistory, '-', color=cmap(colCurrIndex), lineWidth=3.0, zorder=1) 
+  ax.plot(cumulativeObsArr, meanHistory, '-', color=cmap(colCurrIndex), lineWidth=3.0, zorder=1, label=dirs[resId]) 
 
   # Plotting confidence intervals
   if showCI > 0.:
@@ -129,20 +121,20 @@ def plotRewardHistory(ax, dirs, results, minReward, maxReward, averageDepth, max
 
   # Updating color index
   if (len(results) > 1):
-   colCurrIndex = colCurrIndex + (1.0 / float(len(results)-1)) - 0.0001
+   colCurrIndex = colCurrIndex + (1.0 / float(len(unpackedResults)-1)) - 0.0001
   
- ## Configuring common plotting features
+  ## Configuring common plotting features
 
- if (minReward): minPlotReward = float(minReward)
- if (maxReward): maxPlotReward = float(maxReward)
- 
- ax.set_ylabel('Cumulative Reward')  
- ax.set_xlabel('# Observations')
- ax.set_title('Korali RL History Viewer')
- 
- ax.yaxis.grid()
- ax.set_xlim([0, maxPlotObservations-1])
- ax.set_ylim([minPlotReward - 0.1*abs(minPlotReward), maxPlotReward + 0.1*abs(maxPlotReward)])
+  if (minReward): minPlotReward = float(minReward)
+  if (maxReward): maxPlotReward = float(maxReward)
+
+  ax.set_ylabel('Cumulative Reward')  
+  ax.set_xlabel('# Observations')
+  ax.set_title('Korali RL History Viewer')
+
+  ax.yaxis.grid()
+  ax.set_xlim([0, maxPlotObservations-1])
+  ax.set_ylim([minPlotReward - 0.1*abs(minPlotReward), maxPlotReward + 0.1*abs(maxPlotReward)])
  
 ##################### Results parser
 
@@ -166,7 +158,7 @@ def parseResults(dir):
 ##################### Main Routine: Parsing arguments and result files
   
 if __name__ == '__main__':
- 
+
  # Setting termination signal handler
  
  signal.signal(signal.SIGINT, lambda x, y: exit(0))
@@ -263,8 +255,9 @@ if __name__ == '__main__':
  ax1 = fig1.add_subplot(111)
      
  ### Creating plots
-  
+
  plotRewardHistory(ax1, args.dir, results, args.minReward, args.maxReward, args.averageDepth, args.maxObservations, args.showCI, args.aggregate)
+ plt.legend()
  plt.draw()
  
  ### Printing live results if update frequency > 0

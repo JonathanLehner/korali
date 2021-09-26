@@ -211,6 +211,10 @@ class Agent : public Solver
   */
    std::vector<float> _trainingRewardHistory;
   /**
+  * @brief [Internal Use] Keeps a history of all training environment ids.
+  */
+   std::vector<size_t> _trainingEnvironmentIdHistory;
+  /**
   * @brief [Internal Use] Keeps a history of all training episode experience counts.
   */
    std::vector<size_t> _trainingExperienceHistory;
@@ -242,42 +246,6 @@ class Agent : public Solver
   * @brief [Internal Use] The cumulative sum of rewards obtained when evaluating the testing samples.
   */
    std::vector<float> _testingReward;
-  /**
-  * @brief [Internal Use] Remembers the best cumulative sum of rewards from latest testing episodes, if any.
-  */
-   float _testingBestReward;
-  /**
-  * @brief [Internal Use] Remembers the worst cumulative sum of rewards from latest testing episodes, if any.
-  */
-   float _testingWorstReward;
-  /**
-  * @brief [Internal Use] Remembers the episode Id that obtained the maximum cumulative sum of rewards found so far during testing.
-  */
-   size_t _testingBestEpisodeId;
-  /**
-  * @brief [Internal Use] Remembers the number of candidate policies tested so far.
-  */
-   size_t _testingCandidateCount;
-  /**
-  * @brief [Internal Use] Remembers the average cumulative sum of rewards from latest testing episodes, if any.
-  */
-   float _testingAverageReward;
-  /**
-  * @brief [Internal Use] Remembers the standard deviation of the cumulative sum of rewards from latest testing episodes, if any.
-  */
-   float _testingStdevReward;
-  /**
-  * @brief [Internal Use] Remembers the average cumulative sum of rewards from previous testing episodes, if any.
-  */
-   float _testingPreviousAverageReward;
-  /**
-  * @brief [Internal Use] Remembers the best cumulative sum of rewards found so far from testing episodes.
-  */
-   float _testingBestAverageReward;
-  /**
-  * @brief [Internal Use] Stores the best testing policy configuration found so far.
-  */
-   knlohmann::json _testingBestPolicy;
   /**
   * @brief [Internal Use] Number of off-policy experiences in the experience replay.
   */
@@ -311,13 +279,17 @@ class Agent : public Solver
   */
    size_t _experienceCount;
   /**
+  * @brief [Internal Use] Count of the number of experiences in the replay memory per environment.
+  */
+   std::vector<size_t> _experienceCountPerEnvironment;
+  /**
   * @brief [Internal Use] Contains the standard deviation of the rewards. They will be scaled by this value in order to normalize the reward distribution in the RM.
   */
-   float _rewardRescalingSigma;
+   std::vector<float> _rewardRescalingSigma;
   /**
   * @brief [Internal Use] Sum of squared rewards in experience replay.
   */
-   float _rewardRescalingSumSquaredRewards;
+   std::vector<float> _rewardRescalingSumSquaredRewards;
   /**
   * @brief [Internal Use] Keeps track of the number of out of bound actions taken.
   */
@@ -338,14 +310,6 @@ class Agent : public Solver
   * @brief [Termination Criteria] The solver will stop when the given number of experiences have been gathered.
   */
    size_t _maxExperiences;
-  /**
-  * @brief [Termination Criteria] The solver will stop when the given best average per-episode reward has been reached among the experiences between two learner updates.
-  */
-   float _testingTargetAverageReward;
-  /**
-  * @brief [Termination Criteria] The solver will stop when the average testing reward is below the previous testing average by more than a threshold given by this factor multiplied with the testing standard deviation.
-  */
-   float _testingAverageRewardIncrement;
   /**
   * @brief [Termination Criteria] The solver will stop when the given number of optimization steps have been performed.
   */
@@ -494,7 +458,12 @@ class Agent : public Solver
   cBuffer<std::vector<float>> _truncatedStateVector;
 
   /**
-   * @brief Contains the rewards for every experience
+   * @brief Contains the environment id of every experience
+   */
+  cBuffer<size_t> _environmentIdVector;
+
+  /**
+   * @brief Contains the rewards of every experience
    */
   cBuffer<float> _rewardVector;
 
@@ -723,15 +692,16 @@ class Agent : public Solver
 
   /**
    * @brief Rescales a given reward by the square root of the sum of squarred rewards
+   * @param environmentId The id of the environment to which this reward belongs
    * @param reward the input reward to rescale
    * @return The normalized reward
    */
-  inline float getScaledReward(const float reward)
+  inline float getScaledReward(const size_t environmentId, const float reward)
   {
-    float rescaledReward = reward / _rewardRescalingSigma;
+    float rescaledReward = reward / _rewardRescalingSigma[environmentId];
 
     if (std::isfinite(rescaledReward) == false)
-      KORALI_LOG_ERROR("Scaled reward is non finite: %f  (Sigma: %f)\n", rescaledReward, _rewardRescalingSigma);
+      KORALI_LOG_ERROR("Scaled reward for environment %lu is non finite: %f  (Sigma: %f)\n", environmentId, rescaledReward, _rewardRescalingSigma[environmentId]);
 
     return rescaledReward;
   }

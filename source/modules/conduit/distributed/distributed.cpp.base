@@ -156,6 +156,12 @@ bool __className__::isRoot()
   return true;
 }
 
+bool __className__::isWorkerLeadRank()
+{
+  // Arbitrarily, we decide that rank 0 is the root rank
+  return _localRankId == 0;
+}
+
 void __className__::sendMessageToEngine(knlohmann::json &message)
 {
 #ifdef _KORALI_USE_MPI
