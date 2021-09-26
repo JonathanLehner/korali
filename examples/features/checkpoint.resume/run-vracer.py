@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import sys
-sys.path.append('../../learning/reinforcement/cartpole/_model')
 from env import *
 
 ####### Defining Korali Problem
