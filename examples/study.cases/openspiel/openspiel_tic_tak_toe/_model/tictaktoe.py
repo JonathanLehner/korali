@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-##  This code was inspired by the OpenAI Gym CartPole v0 environment
+##  This code is a wrapper for the Tic-Tak-Toe environment in Openspiel
 
 ##  Copyright (c) 2018 CSE-Lab, ETH Zurich, Switzerland. All rights reserved.
 ##  Distributed under the terms of the MIT license.

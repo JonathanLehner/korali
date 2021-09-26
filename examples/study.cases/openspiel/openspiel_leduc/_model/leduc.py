@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-##  This code was inspired by the OpenAI Gym CartPole v0 environment
+##  This code is a wrapper for the Leduc Poker environment in Openspiel
 
 ##  Copyright (c) 2018 CSE-Lab, ETH Zurich, Switzerland. All rights reserved.
 ##  Distributed under the terms of the MIT license.
@@ -55,8 +55,10 @@ class Leduc:
   def getState(self):
     state = np.ones(10)*-1
     cur_player = self.game_state.current_player()
-    if(cur_player < 0):
-      cur_player = 0 # should not get the state at -4, which means game is over
+    # should not get the state at -4, which means game is over
+    # at this point the state should not be read but we add this as safety check
+    if(cur_player < 0): 
+      cur_player = 0 
 
     state[0] = cur_player # Current player    
     info_state = self.game_state.information_state_string(cur_player)
@@ -109,4 +111,4 @@ class Leduc:
       rewards = max(self.game_state.rewards()) # reward for winning player, current player at terminal state is always -4
       return rewards # reward the player who made the winning move i.e. made the game terminal
     else: 
-      return 0 # no reward until game is over
+      return 1 # small reward until game is over - we do not know in Leduc if the current state is good until the end of the game
