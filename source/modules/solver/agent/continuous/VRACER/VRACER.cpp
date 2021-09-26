@@ -134,7 +134,7 @@ void VRACER::calculatePolicyGradients(const std::vector<size_t> &miniBatch)
     if (_isOnPolicyVector[expId])
     {
       // Qret for terminal state is just reward
-      float Qret = getScaledReward(_rewardVector[expId]);
+      float Qret = getScaledReward(_environmentIdVector[expId], _rewardVector[expId]);
 
       // If experience is non-terminal, add Vtbc
       if (_terminationVector[expId] == e_nonTerminal)

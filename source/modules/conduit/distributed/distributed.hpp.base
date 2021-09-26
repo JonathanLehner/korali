@@ -71,6 +71,7 @@ class __className__ : public __parentClassName__
   */
   int getRootRank();
   bool isRoot() override;
+  bool isWorkerLeadRank() override;
 };
 
 __endNamespace__;

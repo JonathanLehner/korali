@@ -46,6 +46,7 @@ void __className__::initialize()
   _actionVector.resize(_experienceReplayMaximumSize);
   _retraceValueVector.resize(_experienceReplayMaximumSize);
   _rewardVector.resize(_experienceReplayMaximumSize);
+  _environmentIdVector.resize(_experienceReplayMaximumSize);
   _stateValueVector.resize(_experienceReplayMaximumSize);
   _importanceWeightVector.resize(_experienceReplayMaximumSize);
   _truncatedImportanceWeightVector.resize(_experienceReplayMaximumSize);
@@ -69,21 +70,13 @@ void __className__::initialize()
   {
     _currentEpisode = 0;
     _policyUpdateCount = 0;
-    _testingCandidateCount = 0;
     _currentSampleID = 0;
     _experienceCount = 0;
 
     // Initializing training and episode statistics
-    _testingAverageReward = -korali::Inf;
-    _testingStdevReward = +korali::Inf;
-    _testingBestReward = -korali::Inf;
-    _testingWorstReward = +korali::Inf;
     _trainingBestReward = -korali::Inf;
     _trainingBestEpisodeId = 0;
     _trainingAverageReward = 0.0f;
-    _testingPreviousAverageReward = -korali::Inf;
-    _testingBestAverageReward = -korali::Inf;
-    _testingBestEpisodeId = 0;
 
     // Initializing REFER information
 
@@ -99,9 +92,9 @@ void __className__::initialize()
     // Rescaling information
     _stateRescalingMeans = std::vector<float>(_problem->_stateVectorSize, 0.0);
     _stateRescalingSigmas = std::vector<float>(_problem->_stateVectorSize, 1.0);
-
-    _rewardRescalingSigma = 1.0f;
-    _rewardRescalingSumSquaredRewards = 0.0f;
+    _rewardRescalingSigma = std::vector<float>(_problem->_environmentCount, 1.0f);
+    _rewardRescalingSumSquaredRewards = std::vector<float>(_problem->_environmentCount, 0.0f);
+    _experienceCountPerEnvironment.resize(_problem->_environmentCount, 0);
     _rewardOutboundPenalizationCount = 0;
 
     // Getting agent's initial policy
@@ -113,7 +106,7 @@ void __className__::initialize()
 
   // If this continues a previous training run, deserialize previous input experience replay
   if (_k->_currentGeneration > 0)
-    if (_mode == "Training" || _testingBestPolicy.empty())
+    if (_mode == "Training" || _trainingBestPolicy.empty())
       deserializeExperienceReplay();
 
   // Initializing session-wise profiling timers
@@ -147,19 +140,7 @@ void __className__::initialize()
     _maxGenerations = _k->_currentGeneration + 1;
 
     // Setting testing policy to best testing hyperparameters if not custom-set by the user
-    if (_testingCurrentPolicy.empty())
-    {
-      // Checking if testing policies have been generated
-      if (_testingBestPolicy.empty())
-      {
-        _k->_logger->logWarning("Minimal", "Trying to test policy, but no testing policies have been generated during training yet or given in the configuration. Using current training policy instead.\n");
-        _testingCurrentPolicy = _trainingCurrentPolicy;
-      }
-      else
-      {
-        _testingCurrentPolicy = _testingBestPolicy;
-      }
-    }
+    if (_testingCurrentPolicy.empty()) _testingCurrentPolicy = _trainingCurrentPolicy;
 
     // Checking if there's testing samples defined
     if (_testingSampleIds.size() == 0)
@@ -386,28 +367,8 @@ void __className__::attendAgent(size_t agentId)
 
         // Storing bookkeeping information
         _trainingRewardHistory.push_back(_trainingLastReward);
+        _trainingEnvironmentIdHistory.push_back(message["Episodes"][i]["Experiences"][0]["Environment Id"]);
         _trainingExperienceHistory.push_back(message["Episodes"][i]["Experiences"].size());
-      }
-
-      // If the policy has exceeded the threshold during training, we gather its statistics
-      if (_agents[agentId]["Tested Policy"] == true)
-      {
-        _testingCandidateCount++;
-
-        _testingPreviousAverageReward = _testingAverageReward;
-        _testingAverageReward = _agents[agentId]["Average Testing Reward"].get<float>();
-        _testingStdevReward = _agents[agentId]["Stdev Testing Reward"].get<float>();
-        _testingBestReward = _agents[agentId]["Best Testing Reward"].get<float>();
-        _testingWorstReward = _agents[agentId]["Worst Testing Reward"].get<float>();
-
-        // If the average testing reward is better than the previous best, replace it
-        // and store hyperparameters as best so far.
-        if (_testingAverageReward > _testingBestAverageReward)
-        {
-          _testingBestAverageReward = _testingAverageReward;
-          _testingBestEpisodeId = episodeId;
-          _testingBestPolicy = _agents[agentId]["Policy Hyperparameters"];
-        }
       }
 
       // Obtaining profiling information
@@ -442,6 +403,9 @@ void __className__::processEpisode(size_t episodeId, knlohmann::json &episode)
 
   for (size_t expId = 0; expId < episode["Experiences"].size(); expId++)
   {
+    // Getting environment id
+    auto environmentId = episode["Experiences"][expId]["Environment Id"].get<size_t>();
+
     // Getting state
     _stateVector.add(episode["Experiences"][expId]["State"].get<std::vector<float>>());
 
@@ -471,13 +435,16 @@ void __className__::processEpisode(size_t episodeId, knlohmann::json &episode)
 
     if (_rewardRescalingEnabled)
     {
-      if (_rewardVector.size() >= _experienceReplayMaximumSize)
+      if (_rewardVector.size() == _experienceReplayMaximumSize)
       {
-        _rewardRescalingSumSquaredRewards -= _rewardVector[0] * _rewardVector[0];
+        _rewardRescalingSumSquaredRewards[_environmentIdVector[0]] -= _rewardVector[0] * _rewardVector[0];
+        _experienceCountPerEnvironment[_environmentIdVector[0]]--;
       }
-      _rewardRescalingSumSquaredRewards += reward * reward;
+      _rewardRescalingSumSquaredRewards[environmentId] += reward * reward;
+      _experienceCountPerEnvironment[environmentId]++;
     }
 
+    _environmentIdVector.add(environmentId);
     _rewardVector.add(reward);
 
     // Keeping statistics
@@ -581,14 +548,19 @@ void __className__::processEpisode(size_t episodeId, knlohmann::json &episode)
   for (ssize_t expId = endId; expId >= startId; expId--)
   {
     // Calculating retrace value with the discount factor. Importance weight is 1.0f because the policy is current.
-    retV = _discountFactor * retV + getScaledReward(_rewardVector[expId]);
+    retV = _discountFactor * retV + getScaledReward(_environmentIdVector[expId], _rewardVector[expId]);
 
     // Setting initial retrace value in the experience's cache
     _retraceValueVector[expId] = retV;
   }
 
   if (_rewardRescalingEnabled)
-    _rewardRescalingSigma = std::sqrt(_rewardRescalingSumSquaredRewards / (float)_rewardVector.size() + 1e-9);
+  {
+    // get environment Id vector
+    // finalize computation of standard deviation for reward rescaling
+    for (size_t i = 0; i < _problem->_environmentCount; ++i)
+      _rewardRescalingSigma[i] = std::sqrt(_rewardRescalingSumSquaredRewards[i] / ((float)_experienceCountPerEnvironment[i] + 1e-9)) + 1e-9;
+  }
 }
 
 std::vector<size_t> __className__::generateMiniBatch(size_t miniBatchSize)
@@ -642,7 +614,7 @@ void __className__::updateExperienceMetadata(const std::vector<size_t> &miniBatc
     const auto &expPolicy = _expPolicyVector[expId];
     const auto &curPolicy = policyData[batchId];
 
-    // Grabbing state value from the latenst policy
+    // Grabbing state value from the latest policy
     auto stateValue = curPolicy.stateValue;
 
     // Sanity checks for state value
@@ -737,7 +709,7 @@ void __className__::updateExperienceMetadata(const std::vector<size_t> &miniBatc
     for (ssize_t curId = endId; curId >= startId; curId--)
     {
       // Getting current reward, action, and state
-      const float curReward = getScaledReward(_rewardVector[curId]);
+      const float curReward = getScaledReward(_environmentIdVector[curId], _rewardVector[curId]);
 
       // Calculating state value function
       const float curV = _stateValueVector[curId];
@@ -882,6 +854,7 @@ void __className__::serializeExperienceReplay()
     stateJson["Experience Replay"][i]["State"] = _stateVector[i];
     stateJson["Experience Replay"][i]["Action"] = _actionVector[i];
     stateJson["Experience Replay"][i]["Reward"] = _rewardVector[i];
+    stateJson["Experience Replay"][i]["Environment Id"] = _environmentIdVector[i];
     stateJson["Experience Replay"][i]["State Value"] = _stateValueVector[i];
     stateJson["Experience Replay"][i]["Retrace Value"] = _retraceValueVector[i];
     stateJson["Experience Replay"][i]["Importance Weight"] = _importanceWeightVector[i];
@@ -937,6 +910,7 @@ void __className__::deserializeExperienceReplay()
   _actionVector.clear();
   _retraceValueVector.clear();
   _rewardVector.clear();
+  _environmentIdVector.clear();
   _stateValueVector.clear();
   _importanceWeightVector.clear();
   _truncatedImportanceWeightVector.clear();
@@ -959,6 +933,7 @@ void __className__::deserializeExperienceReplay()
     _stateVector.add(stateJson["Experience Replay"][i]["State"].get<std::vector<float>>());
     _actionVector.add(stateJson["Experience Replay"][i]["Action"].get<std::vector<float>>());
     _rewardVector.add(stateJson["Experience Replay"][i]["Reward"].get<float>());
+    _environmentIdVector.add(stateJson["Experience Replay"][i]["Environment Id"].get<float>());
     _stateValueVector.add(stateJson["Experience Replay"][i]["State Value"].get<float>());
     _retraceValueVector.add(stateJson["Experience Replay"][i]["Retrace Value"].get<float>());
     _importanceWeightVector.add(stateJson["Experience Replay"][i]["Importance Weight"].get<float>());
@@ -992,10 +967,12 @@ void __className__::printGenerationAfter()
 {
   if (_mode == "Training")
   {
-    _k->_logger->logInfo("Normal", "Replay Experience Statistics:\n");
+    _k->_logger->logInfo("Normal", "Experience Replay Statistics:\n");
+    if (_problem->_environmentCount > 1)
+      for (size_t i = 0; i < _problem->_environmentCount; ++i)
+        _k->_logger->logInfo("Normal", " + Experience Count Env %zu:      %lu\n", i, _experienceCountPerEnvironment[i]);
 
     _k->_logger->logInfo("Normal", " + Experience Memory Size:      %lu/%lu\n", _stateVector.size(), _experienceReplayMaximumSize);
-
     if (_maxEpisodes > 0)
       _k->_logger->logInfo("Normal", " + Total Episodes Count:        %lu/%lu\n", _currentEpisode, _maxEpisodes);
     else
@@ -1021,29 +998,16 @@ void __className__::printGenerationAfter()
     else
       _k->_logger->logInfo("Normal", " + Policy Update Count:         %lu\n", _policyUpdateCount);
 
-    _k->_logger->logInfo("Normal", " + Latest Reward:               %f/%f\n", _trainingLastReward, _problem->_trainingRewardThreshold);
+    _k->_logger->logInfo("Normal", " + Latest Reward:               %f\n", _trainingLastReward);
     _k->_logger->logInfo("Normal", " + %lu-Episode Average Reward:  %f\n", _trainingAverageDepth, _trainingAverageReward);
     _k->_logger->logInfo("Normal", " + Best Reward:                 %f (%lu)\n", _trainingBestReward, _trainingBestEpisodeId);
-
-    if (isinf(_problem->_trainingRewardThreshold) == false)
-    {
-      _k->_logger->logInfo("Normal", "Testing Statistics:\n");
-
-      _k->_logger->logInfo("Normal", " + Candidate Policies:          %lu\n", _testingCandidateCount);
-
-      _k->_logger->logInfo("Normal", " + Latest Average (Stdev / Worst / Best) Reward: %f (%f / %f / %f)\n", _testingAverageReward, _testingStdevReward, _testingWorstReward, _testingBestReward);
-    }
-
-    if (_testingTargetAverageReward > -korali::Inf)
-      _k->_logger->logInfo("Normal", " + Best Average Reward: %f/%f (%lu)\n", _testingBestAverageReward, _testingTargetAverageReward, _testingBestEpisodeId);
-    else
-      _k->_logger->logInfo("Normal", " + Best Average Reward: %f (%lu)\n", _testingBestAverageReward, _testingBestEpisodeId);
 
     printAgentInformation();
     _k->_logger->logInfo("Normal", " + Current Learning Rate:           %.3e\n", _currentLearningRate);
 
     if (_rewardRescalingEnabled)
-      _k->_logger->logInfo("Normal", " + Reward Rescaling:            N(%.3e, %.3e)         \n", 0.0, _rewardRescalingSigma);
+      for (size_t i = 0; i < _problem->_environmentCount; ++i)
+        _k->_logger->logInfo("Normal", " + Reward Rescaling (Env %zu):        N(%.3e, %.3e)         \n", i, 0.0, _rewardRescalingSigma[i]);
 
     if (_stateRescalingEnabled)
       _k->_logger->logInfo("Normal", " + Using State Rescaling\n");

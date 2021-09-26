@@ -1,5 +1,5 @@
-Study Case: Swimmer behind Obstacle
-====================================
+Study Case: Reinforcement Learning for Artificial Swimmers
+===========================================================
 
 Environment for artificial swimmers, described by the StefanFish class (see _deps/CUP2D/Obstacles/Stefanfish{.cpp,.h}).
 
@@ -25,6 +25,6 @@ The application is launched locally (or on an interactive node on Piz Daint) usi
 If you are ready for production you can submitt a job to the batch-system using
 
 .. code-block:: bash
-	./sbatch-vracer-swimmer.sh
+	./sbatch-run-vracer-swimmer.sh
 
 Here you can change the number of parallel agents by changing the NNODES variable.

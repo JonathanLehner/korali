@@ -11,7 +11,12 @@ def env(s):
  # Initializing environment and random seed
  sampleId = s["Sample Id"]
  launchId = s["Launch Id"]
+ if s["Mode"] == "Training":
+    envId = sampleId % 3
+ else:
+    envId = 0
  cart.reset(sampleId * 1024 + launchId)
+ s["Environment Id"] = envId
  s["State"] = cart.getState().tolist()
  step = 0
  done = False
@@ -23,10 +28,15 @@ def env(s):
   
   # Performing the action
   done = cart.advance(s["Action"])
-  #print(s["Action"]) 
   
   # Getting Reward
-  s["Reward"] = cart.getReward()
+  reward = cart.getReward()
+  if (envId == 0):
+    s["Reward"] = cart.getReward()
+  elif (envId == 1):
+    s["Reward"] = cart.getReward() - 1
+  else:
+    s["Reward"] = cart.getReward() * 0.1
    
   # Storing New State
   s["State"] = cart.getState().tolist()

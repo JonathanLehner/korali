@@ -31,8 +31,6 @@ def initEnvironment(e, envName, moviePath = ''):
  e["Problem"]["Type"] = "Reinforcement Learning / Continuous"
  e["Problem"]["Environment Function"] = lambda x : agent(x, env)
  e["Problem"]["Custom Settings"]["Print Step Information"] = "Disabled"
- e["Problem"]["Training Reward Threshold"] = math.inf
- e["Problem"]["Policy Testing Episodes"] = 20
  
  # Getting environment variable counts
  stateVariableCount = env.observation_space.shape[0]
@@ -64,10 +62,6 @@ def initEnvironment(e, envName, moviePath = ''):
   e["Variables"][stateVariableCount + i]["Upper Bound"] = float(env.action_space.high[i])
   e["Variables"][stateVariableCount + i]["Initial Exploration Noise"] = math.sqrt(0.2)
 
- ### Defining Termination Criteria
-
- e["Solver"]["Termination Criteria"]["Testing"]["Target Average Reward"] = math.inf
- 
 def agent(s, env):
 
  if (s["Custom Settings"]["Print Step Information"] == "Enabled"):

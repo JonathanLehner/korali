@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 1 ] ; then
-	echo "Usage: ./run-vracer-swarm.sh RUNNAME"
+	echo "Usage: ./eval-vracer-swimmer.sh RUNNAME"
 	exit 1
 fi
 if [ $# -gt 0 ] ; then
@@ -17,13 +17,11 @@ if [ ! -z $SLURM_NNODES ]; then
 fi
 
 RUNPATH="${SCRATCH}/korali/${RUNNAME}"
-mkdir -p ${RUNPATH}
-cp run-vracer-swarm ${RUNPATH}
-cp settings.sh ${RUNPATH}
+cp eval-vracer-swimmer ${RUNPATH}
 cd ${RUNPATH}
 
 source settings.sh
 
 set -ux
 
-$mpiflags ./run-vracer-swarm ${OPTIONS} -shapes "${OBJECTS}"
+$mpiflags ./eval-vracer-swimmer ${OPTIONS} -shapes "${OBJECTS}" -nAgents $NAGENTS

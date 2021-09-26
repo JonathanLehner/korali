@@ -160,6 +160,12 @@ bool Distributed::isRoot()
   return true;
 }
 
+bool Distributed::isWorkerLeadRank()
+{
+  // Arbitrarily, we decide that rank 0 is the root rank
+  return _localRankId == 0;
+}
+
 void Distributed::sendMessageToEngine(knlohmann::json &message)
 {
 #ifdef _KORALI_USE_MPI

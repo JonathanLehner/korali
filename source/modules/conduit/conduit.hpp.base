@@ -33,6 +33,12 @@ class __className__ : public __parentClassName__
   virtual bool isRoot() { return true; }
 
   /**
+ * @brief Determines whether the caller rank is the leader of its worker root
+ * @return True, if it is the worker leader rank; false, otherwise.
+ */
+  virtual bool isWorkerLeadRank() { return true; }
+
+  /**
  * @brief  (Worker Side) Starts the processing of a sample at the worker side
  * @param js Contains sample's input data and metadata
  */
