@@ -791,7 +791,7 @@ void TMCMC::setBurnIn()
   else if (_k->_currentGeneration - 2 < _perGenerationBurnIn.size())
     _currentBurnIn = _perGenerationBurnIn[_k->_currentGeneration - 2];
   else
-    _currentBurnIn = _defaultBurnIn;
+    _currentBurnIn = _burnIn;
 }
 
 void TMCMC::finalize()
@@ -809,9 +809,9 @@ void TMCMC::printGenerationAfter()
 {
   _k->_logger->logInfo("Minimal", "Acceptance Rate (proposals / selections): (%.2f%% / %.2f%%)\n", 100 * _proposalsAcceptanceRate, 100 * _selectionAcceptanceRate);
   _k->_logger->logInfo("Normal", "Coefficient of Variation: %.2f%%\n", 100.0 * _coefficientOfVariation);
-  _k->_logger->logInfo("Normal", "logEvidence: %.3f\n", _logEvidence);
+  _k->_logger->logInfo("Normal", "log of accumulated Plausibility Weights: %.3f\n", _logEvidence);
   _k->_logger->logInfo("Detailed", "max logLikelihood: %.3f\n", _maxLoglikelihood);
-  _k->_logger->logInfo("Detailed", "Number of finite evaluations (prior / likelihood): (%zu / %zu)\n", _numFinitePriorEvaluations, _numFiniteLikelihoodEvaluations);
+  _k->_logger->logInfo("Detailed", "Number of finite Evaluations (prior / likelihood): (%zu / %zu)\n", _numFinitePriorEvaluations, _numFiniteLikelihoodEvaluations);
 
   if (_version == "mTMCMC")
   {
@@ -1263,14 +1263,14 @@ void TMCMC::setConfiguration(knlohmann::json& js)
  }
   else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['Max Chain Length'] required by TMCMC.\n"); 
 
- if (isDefined(js, "Default Burn In"))
+ if (isDefined(js, "Burn In"))
  {
- try { _defaultBurnIn = js["Default Burn In"].get<size_t>();
+ try { _burnIn = js["Burn In"].get<size_t>();
 } catch (const std::exception& e)
- { KORALI_LOG_ERROR(" + Object: [ TMCMC ] \n + Key:    ['Default Burn In']\n%s", e.what()); } 
-   eraseValue(js, "Default Burn In");
+ { KORALI_LOG_ERROR(" + Object: [ TMCMC ] \n + Key:    ['Burn In']\n%s", e.what()); } 
+   eraseValue(js, "Burn In");
  }
-  else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['Default Burn In'] required by TMCMC.\n"); 
+  else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['Burn In'] required by TMCMC.\n"); 
 
  if (isDefined(js, "Per Generation Burn In"))
  {
@@ -1357,7 +1357,7 @@ void TMCMC::getConfiguration(knlohmann::json& js)
    js["Version"] = _version;
    js["Population Size"] = _populationSize;
    js["Max Chain Length"] = _maxChainLength;
-   js["Default Burn In"] = _defaultBurnIn;
+   js["Burn In"] = _burnIn;
    js["Per Generation Burn In"] = _perGenerationBurnIn;
    js["Target Coefficient Of Variation"] = _targetCoefficientOfVariation;
    js["Covariance Scaling"] = _covarianceScaling;
@@ -1420,7 +1420,7 @@ void TMCMC::getConfiguration(knlohmann::json& js)
 void TMCMC::applyModuleDefaults(knlohmann::json& js) 
 {
 
- std::string defaultString = "{\"Multinomial Generator\": {\"Type\": \"Specific/Multinomial\"}, \"Multivariate Generator\": {\"Type\": \"Multivariate/Normal\"}, \"Uniform Generator\": {\"Type\": \"Univariate/Uniform\", \"Minimum\": 0.0, \"Maximum\": 1.0}, \"Version\": \"TMCMC\", \"Max Chain Length\": 1, \"Default Burn In\": 0, \"Per Generation Burn In\": [], \"Target Coefficient Of Variation\": 1.0, \"Covariance Scaling\": 0.04, \"Min Annealing Exponent Update\": 1e-05, \"Max Annealing Exponent Update\": 1.0, \"Domain Extension Factor\": 0.2, \"Step Size\": 0.1, \"Termination Criteria\": {\"Target Annealing Exponent\": 1.0}}";
+ std::string defaultString = "{\"Multinomial Generator\": {\"Type\": \"Specific/Multinomial\"}, \"Multivariate Generator\": {\"Type\": \"Multivariate/Normal\"}, \"Uniform Generator\": {\"Type\": \"Univariate/Uniform\", \"Minimum\": 0.0, \"Maximum\": 1.0}, \"Version\": \"TMCMC\", \"Max Chain Length\": 1, \"Burn In\": 0, \"Per Generation Burn In\": [], \"Target Coefficient Of Variation\": 1.0, \"Covariance Scaling\": 0.04, \"Min Annealing Exponent Update\": 1e-05, \"Max Annealing Exponent Update\": 1.0, \"Domain Extension Factor\": 0.2, \"Step Size\": 0.1, \"Termination Criteria\": {\"Target Annealing Exponent\": 1.0}}";
  knlohmann::json defaultJs = knlohmann::json::parse(defaultString);
  mergeJson(js, defaultJs); 
  Sampler::applyModuleDefaults(js);

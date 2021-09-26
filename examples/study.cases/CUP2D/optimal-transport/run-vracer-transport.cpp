@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
   e["Solver"]["Policy"]["Distribution"] = "Normal";
   e["Solver"]["State Rescaling"]["Enabled"] = true;
   e["Solver"]["Reward"]["Rescaling"]["Enabled"] = true;
-  e["Solver"]["Reward"]["Rescaling"]["Frequency"] = 1000;
 
   //// Defining Neural Network
 

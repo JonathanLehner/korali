@@ -12,9 +12,9 @@ def build_tools(toolsSrcDir, toolsDstDir):
   shutil.rmtree(toolsDstDir, ignore_errors=True, onerror=None)
   os.makedirs(toolsDstDir)
   
-  shutil.copyfile(toolsSrcDir + '/plotter/README.rst', toolsDstDir + '/plotter.rst')
+  shutil.copyfile(toolsSrcDir + '/plot/README.rst', toolsDstDir + '/plotter.rst')
   
-  for file in glob.glob(r'' + toolsSrcDir + '/plotter/*.png'):
+  for file in glob.glob(r'' + toolsSrcDir + '/plot/*.png'):
     shutil.copy(file, toolsDstDir)
   
   shutil.copyfile(toolsSrcDir + '/profiler/README.rst', toolsDstDir + '/profiler.rst')

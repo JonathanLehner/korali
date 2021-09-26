@@ -62,7 +62,7 @@ e["Distributions"][5]["Maximum"] = 5.0
 
 e["Solver"]["Type"] = "Sampler/TMCMC"
 e["Solver"]["Population Size"] = 2000
-e["Solver"]["Default Burn In"] = 1
+e["Solver"]["Burn In"] = 1
 e["Solver"]["Target Coefficient Of Variation"] = 0.6
 e["Solver"]["Covariance Scaling"] = 0.1
 

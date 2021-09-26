@@ -785,7 +785,7 @@ void __className__::setBurnIn()
   else if (_k->_currentGeneration - 2 < _perGenerationBurnIn.size())
     _currentBurnIn = _perGenerationBurnIn[_k->_currentGeneration - 2];
   else
-    _currentBurnIn = _defaultBurnIn;
+    _currentBurnIn = _burnIn;
 }
 
 void __className__::finalize()
@@ -803,9 +803,9 @@ void __className__::printGenerationAfter()
 {
   _k->_logger->logInfo("Minimal", "Acceptance Rate (proposals / selections): (%.2f%% / %.2f%%)\n", 100 * _proposalsAcceptanceRate, 100 * _selectionAcceptanceRate);
   _k->_logger->logInfo("Normal", "Coefficient of Variation: %.2f%%\n", 100.0 * _coefficientOfVariation);
-  _k->_logger->logInfo("Normal", "logEvidence: %.3f\n", _logEvidence);
+  _k->_logger->logInfo("Normal", "log of accumulated Plausibility Weights: %.3f\n", _logEvidence);
   _k->_logger->logInfo("Detailed", "max logLikelihood: %.3f\n", _maxLoglikelihood);
-  _k->_logger->logInfo("Detailed", "Number of finite evaluations (prior / likelihood): (%zu / %zu)\n", _numFinitePriorEvaluations, _numFiniteLikelihoodEvaluations);
+  _k->_logger->logInfo("Detailed", "Number of finite Evaluations (prior / likelihood): (%zu / %zu)\n", _numFinitePriorEvaluations, _numFiniteLikelihoodEvaluations);
 
   if (_version == "mTMCMC")
   {

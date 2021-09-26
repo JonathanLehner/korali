@@ -35,7 +35,6 @@ for i in range(dim):
 e["Solver"]["Type"] = "Optimizer/CMAES"
 e["Solver"]["Population Size"] = 32
 e["Solver"]["Termination Criteria"]["Min Value Difference Threshold"] = 1e-32
-e["Solver"]["Termination Criteria"]["Max Generations"] = 100
 
 # Configuring results path
 e["File Output"]["Enabled"] = True

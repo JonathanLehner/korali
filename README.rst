@@ -10,7 +10,7 @@ High-performance framework for uncertainty quantification, optimization and rein
 .. image:: https://readthedocs.org/projects/korali/badge/?version=master
     :target: https://korali.readthedocs.io/en/master/?badge=master
     :alt: Documentation Status
-.. image:: https://codecov.io/gh/cselab/korali/branch/prerelease/graph/badge.svg?token=yyY5Ew6T8N
+.. image:: https://codecov.io/gh/cselab/korali/branch/master/graph/badge.svg?token=yyY5Ew6T8N
     :target: https://codecov.io/gh/cselab/korali
     :alt: Code Coverage
 

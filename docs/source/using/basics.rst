@@ -406,6 +406,6 @@ To reduce the output frequency, use the following:
 Plotting Results
 -----------------------------------------------
 
-To generate a plot with the results of your experiment, check the documentation for the :ref:`Korali Plotter <korali-plotter>` and :ref:`Korali Reinforcement Learning View <korali-rlview>` tools. 
+To generate a plot with the results of your experiment, check the documentation for the :ref:`Korali Plotter <korali.plot>` and :ref:`Korali Reinforcement Learning View <korali-rlview>` tools. 
 
    

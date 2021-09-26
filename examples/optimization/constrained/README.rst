@@ -165,4 +165,4 @@ Plotting
 ---------------------------
 
 You can see the results of CMA-ES by running the command,
-`python3 -m korali.plotter`
+`python3 -m korali.plot`

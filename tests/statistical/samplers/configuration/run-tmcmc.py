@@ -50,5 +50,3 @@ k.run(e)
 # Verify Initial Values
 verify(e["Solver"]["Chain Candidates LogPriors"][0], np.log(1./25.))
 verify(e["Solver"]["Chain Leaders LogPriors"][0], np.log(1./25.))
-
-

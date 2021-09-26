@@ -5,14 +5,14 @@
 #ifndef _KORALI_FAST_ADAGRAD_HPP_
 #define _KORALI_FAST_ADAGRAD_HPP_
 
-#include "fGradientBasedOptimizer.hpp"
+#include "fAdam.hpp"
 
 namespace korali
 {
 /**
 * @brief Class declaration for module: MADGRAD.
 */
-class fAdagrad : public fGradientBasedOptimizer
+class fAdagrad : public fAdam
 {
   public:
   /**
@@ -25,11 +25,6 @@ class fAdagrad : public fGradientBasedOptimizer
   * @brief Squared Gradient Component
   */
   std::vector<float> _s;
-
-  /**
-   * @brief Safety addition on divide
-   */
-  float _epsilon;
 
   virtual bool checkTermination() override;
   virtual void processResult(float evaluation, std::vector<float> &gradient) override;

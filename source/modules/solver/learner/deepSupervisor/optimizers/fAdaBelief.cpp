@@ -17,6 +17,7 @@ void fAdaBelief::reset()
 {
   fAdam::reset();
 
+#pragma omp parallel for simd
   for (size_t i = 0; i < _nVars; i++)
     _secondCentralMoment[i] = 0.0f;
 }

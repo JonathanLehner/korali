@@ -46,7 +46,7 @@ e["Solver"]["Type"] = "Sampler/TMCMC"
 e["Solver"]["Population Size"] = 1000
 e["Solver"]["Target Coefficient Of Variation"] = 0.6
 e["Solver"]["Covariance Scaling"] = 0.02
-e["Solver"]["Default Burn In"] = 1
+e["Solver"]["Burn In"] = 1
 e["Solver"]["Max Chain Length"] = 1
 
 e["Random Seed"] = 0xC0FFEE

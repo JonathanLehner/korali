@@ -30,10 +30,10 @@ std::vector<float> __className__::generateInitialHyperparameters()
   std::vector<float> hyperparameters;
 
   // If this is not the initial layer, calculate hyperparameters for weight and bias operation
-  if (_prevLayer != NULL)
+  if (_prevLayer != nullptr)
   {
     // Setting value for this layer's xavier constant
-    float xavierConstant = sqrtf(6.0f) / sqrt(_outputChannels + _prevLayer->_outputChannels);
+    float xavierConstant = std::sqrt(6.0f) / std::sqrt(_outputChannels + _prevLayer->_outputChannels);
 
     // Adding layer's weights hyperparameter values
     for (size_t i = 0; i < _outputChannels; i++)

@@ -126,17 +126,22 @@ void Experiment::saveState()
   if (_storeSampleInformation == true) _js["Samples"] = _sampleInfo["Samples"];
 
   char genFileName[256];
-  sprintf(genFileName, "gen%08lu.json", _currentGeneration);
+
+  // Naming result files depends on whether incremental numbering is used, or we overwrite previous results
+  if (_fileOutputUseMultipleFiles == true)
+    sprintf(genFileName, "gen%08lu.json", _currentGeneration);
+  else
+    sprintf(genFileName, "genLatest.json", _currentGeneration);
 
   // If results directory doesn't exist, create it
   if (!dirExists(_fileOutputPath)) mkdir(_fileOutputPath);
 
   std::string filePath = "./" + _fileOutputPath + "/" + genFileName;
+
+  if (saveJsonToFile(filePath.c_str(), _js.getJson()) != 0) KORALI_LOG_ERROR("Error trying to save result file: %s.\n", filePath.c_str());
+
+  // If using multiple files, create a hard link to the latest result
   std::string linkPath = "./" + _fileOutputPath + "/latest";
-
-  if (saveJsonToFile(filePath.c_str(), _js.getJson()) != 0)
-    KORALI_LOG_ERROR("Error trying to save result file: %s.\n", filePath.c_str());
-
   remove(linkPath.c_str());
   link(filePath.c_str(), linkPath.c_str());
 
@@ -206,12 +211,11 @@ void Experiment::finalize()
 {
   for (size_t i = 0; i < _variables.size(); i++) delete _variables[i];
   _variables.clear();
-  delete _logger;
-}
-
-Experiment::~Experiment()
-{
+  for (size_t i = 0; i < _distributions.size(); i++) delete _distributions[i];
+  _distributions.clear();
   if (_isInitialized == true) co_delete(_thread);
+  delete _logger;
+  delete _problem;
 }
 
 std::vector<std::vector<float>> Experiment::getEvaluation(const std::vector<std::vector<std::vector<float>>> &inputBatch)
@@ -344,6 +348,15 @@ void Experiment::setConfiguration(knlohmann::json& js)
  }
   else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['File Output']['Path'] required by experiment.\n"); 
 
+ if (isDefined(js, "File Output", "Use Multiple Files"))
+ {
+ try { _fileOutputUseMultipleFiles = js["File Output"]["Use Multiple Files"].get<int>();
+} catch (const std::exception& e)
+ { KORALI_LOG_ERROR(" + Object: [ experiment ] \n + Key:    ['File Output']['Use Multiple Files']\n%s", e.what()); } 
+   eraseValue(js, "File Output", "Use Multiple Files");
+ }
+  else   KORALI_LOG_ERROR(" + No value provided for mandatory setting: ['File Output']['Use Multiple Files'] required by experiment.\n"); 
+
  if (isDefined(js, "File Output", "Enabled"))
  {
  try { _fileOutputEnabled = js["File Output"]["Enabled"].get<int>();
@@ -413,6 +426,7 @@ void Experiment::getConfiguration(knlohmann::json& js)
  if(_problem != NULL) _problem->getConfiguration(js["Problem"]);
  if(_solver != NULL) _solver->getConfiguration(js["Solver"]);
    js["File Output"]["Path"] = _fileOutputPath;
+   js["File Output"]["Use Multiple Files"] = _fileOutputUseMultipleFiles;
    js["File Output"]["Enabled"] = _fileOutputEnabled;
    js["File Output"]["Frequency"] = _fileOutputFrequency;
    js["Store Sample Information"] = _storeSampleInformation;
@@ -428,7 +442,7 @@ void Experiment::getConfiguration(knlohmann::json& js)
 void Experiment::applyModuleDefaults(knlohmann::json& js) 
 {
 
- std::string defaultString = "{\"Random Seed\": 0, \"Preserve Random Number Generator States\": false, \"Distributions\": [], \"Current Generation\": 0, \"File Output\": {\"Enabled\": true, \"Path\": \"_korali_result\", \"Frequency\": 1}, \"Console Output\": {\"Verbosity\": \"Normal\", \"Frequency\": 1}, \"Store Sample Information\": false, \"Is Finished\": false}";
+ std::string defaultString = "{\"Random Seed\": 0, \"Preserve Random Number Generator States\": false, \"Distributions\": [], \"Current Generation\": 0, \"File Output\": {\"Enabled\": true, \"Path\": \"_korali_result\", \"Frequency\": 1, \"Use Multiple Files\": true}, \"Console Output\": {\"Verbosity\": \"Normal\", \"Frequency\": 1}, \"Store Sample Information\": false, \"Is Finished\": false}";
  knlohmann::json defaultJs = knlohmann::json::parse(defaultString);
  mergeJson(js, defaultJs); 
  Module::applyModuleDefaults(js);

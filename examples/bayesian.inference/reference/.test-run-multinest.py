@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 from subprocess import call
-from korali.plotter.__main__ import main
+from korali.plot.__main__ import main
 
 r = call(["python3", "run-multinest.py"])
 if r!=0:

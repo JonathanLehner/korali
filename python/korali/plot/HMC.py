@@ -3,7 +3,7 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-from korali.plotter.helpers import hlsColors, drawMulticoloredLine
+from korali.plot.helpers import hlsColors, drawMulticoloredLine
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -55,7 +55,7 @@ def plot_histogram(ax, theta):
 
 
 #Plot scatter plot in upper triangle of figure
-def plot_upper_triangle(ax, theta, lik=False):
+def plot_upper_triangle(ax, theta, lik):
   dim = theta.shape[1]
   if (dim == 1):
     return
@@ -64,7 +64,7 @@ def plot_upper_triangle(ax, theta, lik=False):
     for j in range(i + 1, dim):
       if lik:
         ax[i, j].scatter(
-            theta[:, j], theta[:, i], marker='o', s=10, c=theta, alpha=0.5)
+            theta[:, j], theta[:, i], marker='o', s=3, alpha=0.5, c=lik)
       else:
         ax[i, j].plot(theta[:, j], theta[:, i], '.', markersize=1)
       ax[i, j].set_xticklabels([])
@@ -97,7 +97,7 @@ def plot_lower_triangle(ax, theta):
         ax[i, j].set_yticklabels([])
 
 
-def plot(genList, **kwargs):
+def plotGen(genList, idx):
   numgens = len(genList)
 
   lastGen = 0
@@ -106,15 +106,49 @@ def plot(genList, **kwargs):
       lastGen = genList[i]['Current Generation']
 
   numdim = len(genList[lastGen]['Variables'])
-  samples = genList[lastGen]['Solver']['Sample Database']
-  numentries = len(samples)
+  samples = np.array(genList[lastGen]['Solver']['Sample Database'])
 
+  isFinite = [~np.isnan(s - s).any() for s in samples]  # Filter trick
+  samples = samples[isFinite]
+
+  lpo = np.array( genList[lastGen]['Solver']['Sample Evaluation Database'] )
+  lpo = lpo[isFinite]
+  lpo = lpo.tolist()
+ 
+  tmp1 = zip(lpo, samples)
+  tmp2 = sorted(tmp1, key=lambda x: x[0]) # Avoid erros if equal lpo's exist
+  lpo, samples = zip(*tmp2)
+
+  numentries = len(samples)
   fig, ax = plt.subplots(numdim, numdim, figsize=(8, 8))
   samplesTmp = np.reshape(samples, (numentries, numdim))
   plt.suptitle(
-      'MCMC Plotter - \nNumber of Samples {0}\n'.format(str(numentries)),
+      'HMC Plotter - \nNumber of Samples {0}'.format(str(numentries)),
       fontweight='bold',
       fontsize=12)
   plot_histogram(ax, samplesTmp)
-  plot_upper_triangle(ax, samplesTmp, False)
+  plot_upper_triangle(ax, samplesTmp, lpo)
   plot_lower_triangle(ax, samplesTmp)
+  
+  if numdim > 1:
+    for i in range(numdim):
+      ax[i, 0].set_ylabel(genList[idx]['Variables'][i]['Name'])
+      ax[-1, i].set_xlabel(genList[idx]['Variables'][i]['Name'])
+  else:
+    ax.set_ylabel(genList[idx]['Variables'][0]['Name'])
+    ax.set_xlabel(genList[idx]['Variables'][0]['Name'])
+
+
+def plot(genList, args):
+  numgens = len(genList)
+
+  plotAll = args.all
+  if plotAll:
+    for idx in genList:
+      plotGen(genList, idx)
+  else:
+    lastGen = 0
+    for i in genList:
+      if genList[i]['Current Generation'] > lastGen:
+        lastGen = genList[i]['Current Generation']
+    plotGen(genList, lastGen)

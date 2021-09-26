@@ -23,7 +23,9 @@ fAdam::fAdam(size_t nVars)
   // Defaults
   _beta1 = 0.9f;
   _beta2 = 0.999f;
-  _eta = 0.001;
+  _beta1Pow = 1.0f;
+  _beta2Pow = 1.0f;
+  _eta = 0.001f;
   _epsilon = 1e-08f;
 
   // Termination Criteria
@@ -38,6 +40,8 @@ void fAdam::reset()
 {
   _currentGeneration = 1;
   _modelEvaluationCount = 0;
+  _beta1Pow = 1.f;
+  _beta2Pow = 1.f;
 
   for (size_t i = 0; i < _nVars; i++)
     if (std::isfinite(_initialValues[i]) == false)
@@ -46,11 +50,10 @@ void fAdam::reset()
       throw std::runtime_error("Bad Inputs for Optimizer.");
     }
 
-  for (size_t i = 0; i < _nVars; i++)
-    _currentValue[i] = _initialValues[i];
-
+#pragma omp parallel for simd
   for (size_t i = 0; i < _nVars; i++)
   {
+    _currentValue[i] = _initialValues[i];
     _firstMoment[i] = 0.0f;
     _secondMoment[i] = 0.0f;
   }
@@ -62,14 +65,18 @@ void fAdam::processResult(float evaluation, std::vector<float> &gradient)
 {
   _modelEvaluationCount++;
 
+  // Calculate powers of beta1 & beta2
+  _beta1Pow*=_beta1;
+  _beta2Pow*=_beta2;
+
   if (gradient.size() != _nVars)
   {
     fprintf(stderr, "Size of sample's gradient evaluations vector (%lu) is different from the number of problem variables defined (%lu).\n", gradient.size(), _nVars);
     throw std::runtime_error("Bad Inputs for Optimizer.");
   }
 
-  const float secondCentralMomentFactor = 1.0f / (1.0f - std::pow(_beta2, (float)_modelEvaluationCount));
-  const float firstCentralMomentFactor = 1.0f / (1.0f - std::pow(_beta1, (float)_modelEvaluationCount));
+  const float firstCentralMomentFactor = 1.0f / (1.0f - _beta1Pow);
+  const float secondCentralMomentFactor = 1.0f / (1.0f - _beta2Pow);
   const float notBeta1 = 1.0f - _beta1;
   const float notBeta2 = 1.0f - _beta2;
 
@@ -78,10 +85,8 @@ void fAdam::processResult(float evaluation, std::vector<float> &gradient)
   for (size_t i = 0; i < _nVars; i++)
   {
     _firstMoment[i] = _beta1 * _firstMoment[i] - notBeta1 * gradient[i];
-    const float biasCorrectedFirstMoment = _firstMoment[i] * firstCentralMomentFactor;
     _secondMoment[i] = _beta2 * _secondMoment[i] + notBeta2 * gradient[i] * gradient[i];
-    const float biasCorrectedSecondMoment = _secondMoment[i] * secondCentralMomentFactor;
-    _currentValue[i] -= _eta / (std::sqrt(biasCorrectedSecondMoment) + _epsilon) * biasCorrectedFirstMoment;
+    _currentValue[i] -= _eta / (std::sqrt(_secondMoment[i] * secondCentralMomentFactor) + _epsilon) * _firstMoment[i] * firstCentralMomentFactor;
   }
 }
 

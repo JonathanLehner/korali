@@ -8,7 +8,7 @@ RTOL=${RTOL-1}
 CTOL=${CTOL-0.1}
 EXTENT=${EXTENT:-2}
 CFL=${CFL:-0.2}
-PT=${PT:-1e-5}
+PT=${PT:-1e-6}
 PTR=${PTR:-1e-4}
 
 # Settings for Obstacle

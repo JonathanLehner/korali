@@ -124,17 +124,22 @@ void __className__::saveState()
   if (_storeSampleInformation == true) _js["Samples"] = _sampleInfo["Samples"];
 
   char genFileName[256];
-  sprintf(genFileName, "gen%08lu.json", _currentGeneration);
+
+  // Naming result files depends on whether incremental numbering is used, or we overwrite previous results
+  if (_fileOutputUseMultipleFiles == true)
+    sprintf(genFileName, "gen%08lu.json", _currentGeneration);
+  else
+    sprintf(genFileName, "genLatest.json", _currentGeneration);
 
   // If results directory doesn't exist, create it
   if (!dirExists(_fileOutputPath)) mkdir(_fileOutputPath);
 
   std::string filePath = "./" + _fileOutputPath + "/" + genFileName;
+
+  if (saveJsonToFile(filePath.c_str(), _js.getJson()) != 0) KORALI_LOG_ERROR("Error trying to save result file: %s.\n", filePath.c_str());
+
+  // If using multiple files, create a hard link to the latest result
   std::string linkPath = "./" + _fileOutputPath + "/latest";
-
-  if (saveJsonToFile(filePath.c_str(), _js.getJson()) != 0)
-    KORALI_LOG_ERROR("Error trying to save result file: %s.\n", filePath.c_str());
-
   remove(linkPath.c_str());
   link(filePath.c_str(), linkPath.c_str());
 
@@ -204,12 +209,11 @@ void __className__::finalize()
 {
   for (size_t i = 0; i < _variables.size(); i++) delete _variables[i];
   _variables.clear();
-  delete _logger;
-}
-
-__className__::~__className__()
-{
+  for (size_t i = 0; i < _distributions.size(); i++) delete _distributions[i];
+  _distributions.clear();
   if (_isInitialized == true) co_delete(_thread);
+  delete _logger;
+  delete _problem;
 }
 
 std::vector<std::vector<float>> __className__::getEvaluation(const std::vector<std::vector<std::vector<float>>> &inputBatch)

@@ -144,7 +144,7 @@ void Output::forwardData(const size_t t)
 #endif
 
   // Performing postprocessing
-#pragma omp parallel for simd
+#pragma omp parallel for
   for (size_t i = 0; i < N; i++)
     for (size_t j = 0; j < OC; j++)
     {
@@ -159,7 +159,7 @@ void Output::forwardData(const size_t t)
       // If we  use scaling, then apply the scaling factors now
       if (_scale.size() > 0) x *= _scale[j];
 
-      // If we  use shifting, then apply the scaling factors now
+      // If we  use shifting, then apply the shifting now
       if (_shift.size() > 0) x += _shift[j];
 
       // Saving result to NN's output directly
@@ -177,7 +177,7 @@ void Output::backwardData(const size_t t)
     KORALI_LOG_ERROR("Requesting Layer backward data propagation but NN was configured for inference only.\n");
 
 // Performing gradient pre-processing
-#pragma omp parallel for simd
+#pragma omp parallel for
   for (size_t i = 0; i < N; i++)
     for (size_t j = 0; j < OC; j++)
     {
@@ -207,8 +207,8 @@ void Output::backwardData(const size_t t)
 
       if (_transformationVector[j] == t_softplus)
       {
-        float nnx = x - 0.25 / x; // Approximation NN output
-        g = g * 0.5 * (nnx / std::sqrt(nnx * nnx + 1) + 1);
+        float nnx = x - 0.25 / x;
+        g = g * 0.5 * (1. + nnx / std::sqrt(nnx * nnx + 1));
       }
 
       if (_transformationVector[j] == t_sigmoid)

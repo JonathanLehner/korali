@@ -98,7 +98,7 @@ def main(path, test, output, plotAll=False):
    exit(0)
 
   sys.path.append(solverDir)
-  solverLib = importlib.import_module(moduleName, package="plotter")
+  solverLib = importlib.import_module(moduleName, package="plot")
   solverLib.plot(genList, plotAll=plotAll )
 
   if not output:
@@ -116,7 +116,7 @@ def main(path, test, output, plotAll=False):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(
-      prog='korali.plotter',
+      prog='korali.plot',
       description='Plot the results of a Korali execution.')
   parser.add_argument(
       '--dir',

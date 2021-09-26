@@ -87,8 +87,8 @@ void NeuralNetwork::initialize()
       for (size_t i = 0; i < layerCount; i++)
       {
         layerPipeline_t *p = &_pipelines[curThread][batchSizeIdx];
-        p->_layerVector[i]->_prevLayer = i > 0 ? p->_layerVector[i - 1] : NULL;
-        p->_layerVector[i]->_nextLayer = i < layerCount - 1 ? p->_layerVector[i + 1] : NULL;
+        p->_layerVector[i]->_prevLayer = i > 0 ? p->_layerVector[i - 1] : nullptr;
+        p->_layerVector[i]->_nextLayer = i < layerCount - 1 ? p->_layerVector[i + 1] : nullptr;
         p->_layerVector[i]->_index = i;
         p->_layerVector[i]->_nn = this;
         p->_layerVector[i]->_batchSize = _batchSizes[batchSizeIdx];
@@ -238,7 +238,7 @@ void NeuralNetwork::forward(const std::vector<std::vector<std::vector<float>>> &
   for (size_t b = 0; b < N; b++) p->_inputBatchLastStep[b] = inputValues[b].size() - 1;
 
 // Now replacing values provided by the user in N*T*IC format
-#pragma omp parallel for simd
+#pragma omp parallel for
   for (size_t b = 0; b < N; b++)
     for (size_t t = 0; t < inputValues[b].size(); t++)
       for (size_t i = 0; i < IC; i++)
@@ -249,7 +249,7 @@ void NeuralNetwork::forward(const std::vector<std::vector<std::vector<float>>> &
     for (size_t i = 0; i < layerCount; i++)
       p->_layerVector[i]->forwardData(t);
 
-#pragma omp parallel for simd
+#pragma omp parallel for
   for (size_t b = 0; b < N; b++)
     for (size_t i = 0; i < OC; i++)
       p->_outputValues[b][i] = p->_rawOutputValues[p->_inputBatchLastStep[b] * N * OC + b * OC + i];
@@ -290,7 +290,7 @@ void NeuralNetwork::backward(const std::vector<std::vector<float>> &outputGradie
   std::fill(p->_rawOutputGradients.begin(), p->_rawOutputGradients.end(), 0.0f);
 
 // To store the gradients in the NN we place them on the last input timestep
-#pragma omp parallel for simd
+#pragma omp parallel for
   for (size_t b = 0; b < N; b++)
     for (size_t i = 0; i < OC; i++)
       p->_rawOutputGradients[p->_inputBatchLastStep[b] * N * OC + b * OC + i] = outputGradients[b][i];
@@ -337,7 +337,7 @@ void NeuralNetwork::backward(const std::vector<std::vector<float>> &outputGradie
   }
 
   // Copying input gradients -- only for the last timestep provided in the input
-#pragma omp parallel for simd
+#pragma omp parallel for
   for (size_t b = 0; b < N; b++)
     for (size_t i = 0; i < IC; i++)
       p->_inputGradients[b][i] = p->_rawInputGradients[p->_inputBatchLastStep[b] * N * IC + b * IC + i];

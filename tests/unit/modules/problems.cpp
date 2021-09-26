@@ -1705,7 +1705,7 @@ namespace
   psiExp["Distributions"][0]["Maximum"] = 1.0;
   psiExp["Solver"]["Type"] = "Sampler/TMCMC";
   psiExp["Solver"]["Population Size"] = 1000;
-  psiExp["Solver"]["Default Burn In"] = 3;
+  psiExp["Solver"]["Burn In"] = 3;
   psiExp["Solver"]["Target Coefficient Of Variation"] = 0.6;
   psiExp["Solver"]["Covariance Scaling"] = 0.01;
   psiExp["Solver"]["Sample Database"] = std::vector<std::vector<double>>({{0.1}});
@@ -1713,34 +1713,35 @@ namespace
   psiExp["Solver"]["Sample LogLikelihood Database"] = std::vector<double>({0.1});
   psiExp["Solver"]["Chain Leaders LogLikelihoods"] = std::vector<double>({0.1});
 
-  knlohmann::json thetaExp;
-  thetaExp["Is Finished"] = true;
-  thetaExp["Problem"]["Type"] = "Bayesian/Reference";
-  thetaExp["Problem"]["Reference Data"] = std::vector<double>({0.0});
-  thetaExp["Problem"]["Likelihood Model"] = "Normal";
-  thetaExp["Problem"]["Computational Model"] = 0;
-  thetaExp["Variables"][0]["Name"] = "Var X";
-  thetaExp["Variables"][0]["Prior Distribution"] = "Uniform";
-  thetaExp["Distributions"][0]["Name"] = "Uniform";
-  thetaExp["Distributions"][0]["Type"] = "Univariate/Uniform";
-  thetaExp["Distributions"][0]["Minimum"] = 0.0;
-  thetaExp["Distributions"][0]["Maximum"] = 1.0;
-  thetaExp["Solver"]["Type"] = "Sampler/TMCMC";
-  thetaExp["Solver"]["Population Size"] = 1000;
-  thetaExp["Solver"]["Default Burn In"] = 3;
-  thetaExp["Solver"]["Target Coefficient Of Variation"] = 0.6;
-  thetaExp["Solver"]["Covariance Scaling"] = 0.01;
-  thetaExp["Solver"]["Sample Database"] = std::vector<std::vector<double>>({{0.1}});
-  thetaExp["Solver"]["Sample LogPrior Database"] = std::vector<double>({0.1});
-  thetaExp["Solver"]["Sample LogLikelihood Database"] = std::vector<double>({0.1});
-  thetaExp["Solver"]["Chain Leaders LogLikelihoods"] = std::vector<double>({0.1});
+  knlohmann::json subExp;
+  subExp["Is Finished"] = true;
+  subExp["Problem"]["Type"] = "Bayesian/Reference";
+  subExp["Problem"]["Reference Data"] = std::vector<double>({0.0});
+  subExp["Problem"]["Likelihood Model"] = "Normal";
+  subExp["Problem"]["Computational Model"] = 0;
+  subExp["Variables"][0]["Name"] = "Var X";
+  subExp["Variables"][0]["Prior Distribution"] = "Uniform";
+  subExp["Distributions"][0]["Name"] = "Uniform";
+  subExp["Distributions"][0]["Type"] = "Univariate/Uniform";
+  subExp["Distributions"][0]["Minimum"] = 0.0;
+  subExp["Distributions"][0]["Maximum"] = 1.0;
+  subExp["Solver"]["Type"] = "Sampler/TMCMC";
+  subExp["Solver"]["Population Size"] = 1000;
+  subExp["Solver"]["Burn In"] = 3;
+  subExp["Solver"]["Target Coefficient Of Variation"] = 0.6;
+  subExp["Solver"]["Covariance Scaling"] = 0.01;
+  subExp["Solver"]["Sample Database"] = std::vector<std::vector<double>>({{0.1}});
+  subExp["Solver"]["Sample LogPrior Database"] = std::vector<double>({0.1});
+  subExp["Solver"]["Sample LogLikelihood Database"] = std::vector<double>({0.1});
+  subExp["Solver"]["Chain Leaders LogLikelihoods"] = std::vector<double>({0.1});
 
   // Configuring Problem
   Theta* pObj;
   knlohmann::json problemJs;
   problemJs["Type"] = "Hierarchical/Theta";
-  problemJs["Theta Experiment"] = thetaExp;
+  problemJs["Sub Experiment"] = subExp;
   problemJs["Psi Experiment"] = psiExp;
+  problemJs["Sub Experiment Model"] = 0;
 
   ASSERT_NO_THROW(pObj = dynamic_cast<Theta *>(Module::getModule(problemJs, &e)));
   e._problem = pObj;
@@ -1770,7 +1771,7 @@ namespace
 
   // Testing initialization
   pObj->_psiExperiment = psiExp;
-  pObj->_thetaExperiment = thetaExp;
+  pObj->_subExperiment = subExp;
   ASSERT_NO_THROW(pObj->initialize());
 
   knlohmann::json optExp;
@@ -1782,7 +1783,7 @@ namespace
   optExp["Solver"]["Type"] = "Optimizer/CMAES";
   optExp["Solver"]["Population Size"] = 16;
   pObj->_psiExperiment = optExp;
-  pObj->_thetaExperiment = thetaExp;
+  pObj->_subExperiment = subExp;
   ASSERT_ANY_THROW(pObj->initialize());
 
   optExp["Variables"][0]["Name"] = "Var 1";
@@ -1793,47 +1794,62 @@ namespace
   optExp["Solver"]["Type"] = "Optimizer/CMAES";
   optExp["Solver"]["Population Size"] = 16;
   pObj->_psiExperiment = psiExp;
-  pObj->_thetaExperiment = optExp;
+  pObj->_subExperiment = optExp;
   ASSERT_ANY_THROW(pObj->initialize());
 
   pObj->_psiExperiment = psiExp;
-  pObj->_thetaExperiment = thetaExp;
+  pObj->_subExperiment = subExp;
   pObj->_psiExperiment["Problem"]["Conditional Priors"] = std::vector<std::string>({"Uniform", "Uniform"});
   ASSERT_ANY_THROW(pObj->initialize());
 
   pObj->_psiExperiment = psiExp;
-  pObj->_thetaExperiment = thetaExp;
-  pObj->_thetaExperiment["Is Finished"] = false;
+  pObj->_subExperiment = subExp;
+  pObj->_subExperiment["Is Finished"] = false;
   ASSERT_ANY_THROW(pObj->initialize());
 
   pObj->_psiExperiment = psiExp;
-  pObj->_thetaExperiment = thetaExp;
+  pObj->_subExperiment = subExp;
   pObj->_psiExperiment["Problem"]["Type"] = "Sampling";
   ASSERT_ANY_THROW(pObj->initialize());
 
   pObj->_psiExperiment = psiExp;
-  pObj->_thetaExperiment = thetaExp;
+  pObj->_subExperiment = subExp;
   pObj->_psiExperiment["Problem"]["Conditional Priors"] = std::vector<double>({});
   ASSERT_ANY_THROW(pObj->initialize());
 
   pObj->_psiExperiment = psiExp;
-  pObj->_thetaExperiment = thetaExp;
+  pObj->_subExperiment = subExp;
   pObj->_psiExperiment["Solver"]["Sample LogPrior Database"] = std::vector<double>({std::numeric_limits<double>::infinity()});
   ASSERT_ANY_THROW(pObj->initialize());
 
   pObj->_psiExperiment = psiExp;
-  pObj->_thetaExperiment = thetaExp;
-  pObj->_thetaExperiment["Solver"]["Sample LogPrior Database"] = std::vector<double>({std::numeric_limits<double>::infinity()});
+  pObj->_subExperiment = subExp;
+  pObj->_subExperiment["Solver"]["Sample LogPrior Database"] = std::vector<double>({std::numeric_limits<double>::infinity()});
   ASSERT_ANY_THROW(pObj->initialize());
 
   problemJs = baseProbJs;
   experimentJs = baseExpJs;
-  problemJs.erase("Theta Experiment");
+  problemJs.erase("Sub Experiment Model");
   ASSERT_ANY_THROW(pObj->setConfiguration(problemJs));
 
   problemJs = baseProbJs;
   experimentJs = baseExpJs;
-  problemJs["Theta Experiment"] = std::vector<knlohmann::json>();
+  problemJs["Sub Experiment Model"] = "Not a Number";
+  ASSERT_ANY_THROW(pObj->setConfiguration(problemJs));
+
+  problemJs = baseProbJs;
+  experimentJs = baseExpJs;
+  problemJs["Sub Experiment Model"] = 0;
+  ASSERT_NO_THROW(pObj->setConfiguration(problemJs));
+
+  problemJs = baseProbJs;
+  experimentJs = baseExpJs;
+  problemJs.erase("Sub Experiment");
+  ASSERT_ANY_THROW(pObj->setConfiguration(problemJs));
+
+  problemJs = baseProbJs;
+  experimentJs = baseExpJs;
+  problemJs["Sub Experiment"] = std::vector<knlohmann::json>();
   ASSERT_NO_THROW(pObj->setConfiguration(problemJs));
 
   problemJs = baseProbJs;
@@ -1888,7 +1904,7 @@ namespace
   psiExp["Distributions"][0]["Maximum"] = 1.0;
   psiExp["Solver"]["Type"] = "Sampler/TMCMC";
   psiExp["Solver"]["Population Size"] = 1000;
-  psiExp["Solver"]["Default Burn In"] = 3;
+  psiExp["Solver"]["Burn In"] = 3;
   psiExp["Solver"]["Target Coefficient Of Variation"] = 0.6;
   psiExp["Solver"]["Covariance Scaling"] = 0.01;
   psiExp["Solver"]["Sample Database"] = std::vector<std::vector<double>>({{0.1}});
@@ -2080,6 +2096,21 @@ namespace
   problemJs = baseProbJs;
   experimentJs = baseExpJs;
   problemJs["State Vector Indexes"] = std::vector<size_t>();
+  ASSERT_NO_THROW(pObj->setConfiguration(problemJs));
+
+  problemJs = baseProbJs;
+  experimentJs = baseExpJs;
+  problemJs.erase("Agents Per Environment");
+  ASSERT_ANY_THROW(pObj->setConfiguration(problemJs));
+
+  problemJs = baseProbJs;
+  experimentJs = baseExpJs;
+  problemJs["Agents Per Environment"] = "Not a Number";
+  ASSERT_ANY_THROW(pObj->setConfiguration(problemJs));
+
+  problemJs = baseProbJs;
+  experimentJs = baseExpJs;
+  problemJs["Agents Per Environment"] = 1;
   ASSERT_NO_THROW(pObj->setConfiguration(problemJs));
 
   problemJs = baseProbJs;

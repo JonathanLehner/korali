@@ -85,7 +85,6 @@ e["Solver"]["Experience Replay"]["Maximum Size"] = 100000
 e["Solver"]["Policy"]["Distribution"] = "Squashed Normal"
 e["Solver"]["State Rescaling"]["Enabled"] = True
 e["Solver"]["Reward"]["Rescaling"]["Enabled"] = True
-e["Solver"]["Reward"]["Rescaling"]["Frequency"] = 1000
 e["Solver"]["Reward"]["Outbound Penalization"]["Enabled"] = True
 e["Solver"]["Reward"]["Outbound Penalization"]["Factor"] = 0.5
   

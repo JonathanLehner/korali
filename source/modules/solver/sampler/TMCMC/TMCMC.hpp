@@ -74,7 +74,7 @@ class TMCMC : public Sampler
   /**
   * @brief Specifies the number of additional TMCMC steps per chain per generation (except for generation 0 and 1).
   */
-   size_t _defaultBurnIn;
+   size_t _burnIn;
   /**
   * @brief Specifies the number of additional TMCMC steps per chain at specified generations (this property will overwrite Default Burn In at specified generations). The first entry of the vector corresponds to the 2nd TMCMC generation.
   */

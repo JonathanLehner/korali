@@ -94,7 +94,6 @@ int main(int argc, char *argv[])
   //// Defining Policy distribution and scaling parameters
   e["Solver"]["State Rescaling"]["Enabled"] = true;
   e["Solver"]["Reward"]["Rescaling"]["Enabled"] = false; // this was true
-  //e["Solver"]["Reward"]["Rescaling"]["Frequency"] = 1000;
 
   /// Configuring the neural network and its hidden layers
   e["Solver"]["Neural Network"]["Engine"] = "OneDNN";

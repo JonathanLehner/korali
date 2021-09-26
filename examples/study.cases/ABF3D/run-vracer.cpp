@@ -75,7 +75,6 @@ int main(int argc, char *argv[])
   e["Solver"]["Policy"]["Distribution"] = "Normal";
   e["Solver"]["State Rescaling"]["Enabled"] = false;
   e["Solver"]["Reward"]["Rescaling"]["Enabled"] = true;
-  e["Solver"]["Reward"]["Rescaling"]["Frequency"] = 1000;
 
   /// Defining the configuration of replay memory
 
@@ -110,6 +109,7 @@ int main(int argc, char *argv[])
   ////// Defining Termination Criteria
 
   e["Solver"]["Termination Criteria"]["Testing"]["Target Average Reward"] = 1.6;
+  e["Solver"]["Termination Criteria"]["Max Generations"] = 55;
 
   ////// Setting file output configuration
 

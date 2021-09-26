@@ -1,4 +1,4 @@
-subdir('plotter')
+subdir('plot')
 subdir('profiler')
 subdir('rlview')
 subdir('cxx')

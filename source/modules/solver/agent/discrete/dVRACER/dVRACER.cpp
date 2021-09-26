@@ -226,11 +226,6 @@ void dVRACER::setAgentPolicy(const knlohmann::json &hyperparameters)
   _criticPolicyLearner->setHyperparameters(hyperparameters["Policy"].get<std::vector<float>>());
 }
 
-void dVRACER::resetAgentOptimizers()
-{
-  _criticPolicyLearner->resetOptimizer();
-}
-
 void dVRACER::printAgentInformation()
 {
   _k->_logger->logInfo("Normal", " + [dVRACER] Policy Learning Rate: %.3e\n", _currentLearningRate);

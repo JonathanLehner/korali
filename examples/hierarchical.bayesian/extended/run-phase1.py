@@ -56,7 +56,7 @@ for i in range(5):
   e["Solver"]["Population Size"] = 2000
   e["Solver"]["Target Coefficient Of Variation"] = 0.6
   e["Solver"]["Covariance Scaling"] = 0.02
-  e["Solver"]["Default Burn In"] = 2
+  e["Solver"]["Burn In"] = 2
 
   e["Random Seed"] = 0xC0FFEE
   e["File Output"]["Path"] = "_setup/results_phase_1/" + str(i).zfill(3)

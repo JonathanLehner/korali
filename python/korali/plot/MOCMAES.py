@@ -3,7 +3,7 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-from korali.plotter.helpers import hlsColors, drawMulticoloredLine
+from korali.plot.helpers import hlsColors, drawMulticoloredLine
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 

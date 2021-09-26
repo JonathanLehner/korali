@@ -37,7 +37,7 @@ class Theta : public Hierarchical
   /**
   * @brief Stores the actual Korali object for the theta experiment
   */
-  korali::Experiment _thetaExperimentObject;
+  korali::Experiment _subExperimentObject;
 
   /**
   * @brief Stores the number of variables defined in the Psi problem
@@ -70,29 +70,29 @@ class Theta : public Hierarchical
   korali::problem::hierarchical::Psi *_psiProblem;
 
   /**
-  * @brief Stores the number of variables defined in the Psi problem
+  * @brief Stores the number of variables defined in the Sub problem
   */
-  size_t _thetaVariableCount;
+  size_t _subProblemVariableCount;
 
   /**
-  * @brief Stores the number of samples in the Psi problem experiment to use as input
+  * @brief Stores the number of samples in the sub problem experiment to use as input
   */
-  size_t _thetaProblemSampleCount;
+  size_t _subProblemSampleCount;
 
   /**
-  * @brief Stores the sample coordinates of the Psi Problem
+  * @brief Stores the sample coordinates of the sub Problem
   */
-  std::vector<std::vector<double>> _thetaProblemSampleCoordinates;
+  std::vector<std::vector<double>> _subProblemSampleCoordinates;
 
   /**
- * @brief Stores the sample logLikelihoods of the Psi Problem
+ * @brief Stores the sample logLikelihoods of the sub Problem
  */
-  std::vector<double> _thetaProblemSampleLogLikelihoods;
+  std::vector<double> _subProblemSampleLogLikelihoods;
 
   /**
-  * @brief Stores the sample logPriors of the Psi Problem
+  * @brief Stores the sample logPriors of the sub Problem
   */
-  std::vector<double> _thetaProblemSampleLogPriors;
+  std::vector<double> _subProblemSampleLogPriors;
 
   /**
   * @brief Stores the precomputed log denomitator to speed up calculations
@@ -101,13 +101,17 @@ class Theta : public Hierarchical
 
   public: 
   /**
-  * @brief Results from one previous Korali execution.
+  * @brief Results from one previously executed Bayesian experiment.
   */
-   knlohmann::json _thetaExperiment;
+   knlohmann::json _subExperiment;
   /**
   * @brief Results from the hierarchical problem (Psi).
   */
    knlohmann::json _psiExperiment;
+  /**
+  * @brief Stores the a function used by the underlying Bayesian problem, if required.
+  */
+   std::uint64_t _subExperimentModel;
   
  
   /**

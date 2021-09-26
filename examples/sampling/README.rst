@@ -118,5 +118,5 @@ The results are saved in the folder `_korali_result/`.
 
 Plotting
 ---------------------------
-You can see a histogram of the results by running the command `python3 -m korali.plotter`
+You can see a histogram of the results by running the command `python3 -m korali.plot`
 
