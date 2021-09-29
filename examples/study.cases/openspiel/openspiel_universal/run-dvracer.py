@@ -6,6 +6,7 @@ from env import *
 import argparse
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--env', help='Specifies which environment to run.', required=True)
 parser.add_argument(
     '--engine',
     help='NN backend to use',
@@ -47,47 +48,14 @@ import korali
 k = korali.Engine()
 e = korali.Experiment()
 
-### Defining the Leduc game's configuration
+### Initializing Openspiel environment
 
-e["Problem"]["Type"] = "Reinforcement Learning / Discrete"
-e["Problem"]["Possible Actions"] = [ [0], [1], [2], [3], [4], [5] ]
-e["Problem"]["Environment Function"] = env
+initEnvironment(e, args.env)
+
+### Defining the Openspiel game's configuration
 e["Problem"]["Training Reward Threshold"] = 300
 e["Problem"]["Policy Testing Episodes"] = 40
 e["Problem"]["Actions Between Policy Updates"] = 5
-
-e["Variables"][0]["Name"] = "Current player"
-e["Variables"][0]["Type"] = "State"
-
-e["Variables"][1]["Name"] = "Pot"
-e["Variables"][1]["Type"] = "State"
-
-e["Variables"][2]["Name"] = "Money player 1"
-e["Variables"][2]["Type"] = "State"
-
-e["Variables"][3]["Name"] = "Money player 2"
-e["Variables"][3]["Type"] = "State"
-
-e["Variables"][4]["Name"] = "Public card" # -1 in first round
-e["Variables"][4]["Type"] = "State"
-
-e["Variables"][5]["Name"] = "Private card current player"
-e["Variables"][5]["Type"] = "State"
-
-e["Variables"][6]["Name"] = "Round 1 action 1"
-e["Variables"][6]["Type"] = "State"
-
-e["Variables"][7]["Name"] = "Round 1 action 2"
-e["Variables"][7]["Type"] = "State"
-
-e["Variables"][8]["Name"] = "Round 2 action 1"
-e["Variables"][8]["Type"] = "State"
-
-e["Variables"][9]["Name"] = "Round 2 action 2"
-e["Variables"][9]["Type"] = "State"
-
-e["Variables"][10]["Name"] = "Move"
-e["Variables"][10]["Type"] = "Action"
 
 ### Defining Agent Configuration 
 

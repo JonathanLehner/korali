@@ -10,21 +10,21 @@ import numpy as np, sys
 from scipy.integrate import ode
 import pyspiel
 
-class Leduc:
-  def __init__(self):
-    game_string = "leduc_poker"
-    print("Creating game: {}".format(game_string))
-    self.game = pyspiel.load_game(game_string)
+class OSWrapper:
+  def __init__(self, envName):
+    # should be "leduc_poker" or "tic_tac_toe" etc.
+    print("Creating game: {}".format(envName))
+    self.game = pyspiel.load_game(envName)
     self.game_state = self.game.new_initial_state()
     self.is_failed = False
-    self.deal_cards()
+    self.deal_chance()
     print(self.game_state)
 
   def reset(self, seed):
     np.random.seed(seed)
     self.is_failed = False
     self.game_state = self.game.new_initial_state()
-    self.deal_cards()
+    self.deal_chance()
 
   def isFailed(self):
     return self.is_failed
@@ -40,14 +40,14 @@ class Leduc:
       return 1 # terminate when illegal action
 
     self.game_state.apply_action(action)
-    self.deal_cards()
+    self.deal_chance()
     
     if self.isOver(): 
       return 1
     else: 
       return 0
 
-  def deal_cards(self):
+  def deal_chance(self):
     while self.game_state.is_chance_node():
       random_action = np.random.choice(self.game_state.legal_actions())
       self.game_state.apply_action(random_action)
@@ -61,48 +61,21 @@ class Leduc:
       cur_player = 0 
 
     state[0] = cur_player # Current player    
-    info_state = self.game_state.information_state_string(cur_player)
-    # pot
-    state[1] = int(info_state.split("][")[0].split(": ")[1])
-    # money player 1 
-    state[2] = int(info_state.split("][")[5].split(": ")[1].split(" ")[0])
-    # money player 2
-    state[3] = int(info_state.split("][")[5].split(": ")[1].split(" ")[1])
-    # public card
-    if(len(info_state.split("][")) == 9):
-      state[4] = -1
-      pk = info_state.split("][")[6].split(": ")[1]
-      if(pk != ""):
-         state[4] = int(pk)
-      mr1 = info_state.split("][")[7].split(": ")[1] 
-      mr2 = info_state.split("][")[8].split(": ")[1][:-1]
-    else:
-      mr1 = info_state.split("][")[6].split(": ")[1] 
-      mr2 = info_state.split("][")[7].split(": ")[1][:-1]
+    info_state = self.game_state.observation_tensor(cur_player)
+    info_state = np.asarray(info_state)
 
-    # private card current player
-    state[5] = int(info_state.split("][")[1].split(": ")[1])
-   
-    # moves round 1
-    state[6] = -1
-    state[7] = -1
-    if(mr1 != ""): # can there be a third bet?
-      bets = mr1.split(" ")
-      state[6] = int(bets[0])
-      if(len(bets) > 1):
-        state[7] = int(bets[1])
+    return info_state
 
-    # moves round 2 
-    state[8] = -1
-    state[9] = -1
-    if(mr2 != ""): # can there be a third bet?
-      bets = mr2.split(" ")
-      state[8] = int(bets[0])
-      if(len(bets) > 1):
-        state[9] = int(bets[1])
-      
-    return state
+  @property
+  def observation_space(self):
+    return self.getState()
 
+  @property
+  def action_space(self):
+    # openspiel does not supply all actions, so we assume that the intiai state contains all actions
+    # this might not be the case for all games
+    available_actions = self.game_state.legal_actions()
+    return available_actions
 
   def getReward(self):
     if(self.isFailed()):
