@@ -125,6 +125,6 @@ k.run(e)
 averageTestReward = np.average(e["Solver"]["Testing"]["Reward"])
 print("Average Reward: " + str(averageTestReward))
 if (averageTestReward < 100):
- print("Tic-Tak-Toe example did not reach minimum testing average.")
+ print("Openspiel example did not reach minimum testing average.")
  exit(-1)
 
