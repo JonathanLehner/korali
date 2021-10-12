@@ -54,8 +54,7 @@ class OSWrapper:
       random_action = np.random.choice(self.game_state.legal_actions())
       self.game_state.apply_action(random_action)
 
-  def getState(self):
-    state = np.ones(10)*-1
+  def getActiveState(self):
     cur_player = self.game_state.current_player()
     # the state of -4 means game is over
     # sometimes the state is read after the game is over and then cur_player < 0
@@ -67,9 +66,16 @@ class OSWrapper:
 
     return info_state
 
+  def getState(self, i):
+    print("getState")
+    info_state = self.game_state.observation_tensor(i)
+    info_state = np.asarray(info_state)
+    print("getState2")
+    return info_state
+
   @property
   def observation_space(self):
-    return self.getState()
+    return self.getState(0)
 
   @property
   def num_players(self):
@@ -82,11 +88,11 @@ class OSWrapper:
     available_actions = self.game_state.legal_actions()
     return available_actions
 
-  def getReward(self):
+  def getReward(self, i):
     if(self.isFailed()):
       return -100 # illegal moves
     elif(self.game_state.is_terminal()):
-      rewards = max(self.game_state.rewards()) # reward for winning player, current player at terminal state is always -4
-      return rewards # reward the player who made the winning move i.e. made the game terminal
+      rewards = self.game_state.rewards() # reward for winning player, current player at terminal state is always -4
+      return rewards[i] # reward the player who made the winning move i.e. made the game terminal
     else: 
       return 1 # small reward until game is over - we do not know in Leduc if the current state is good until the end of the game

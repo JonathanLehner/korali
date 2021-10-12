@@ -16,32 +16,44 @@ def agent(s, env):
 
  states = []
  for i in np.arange(num_players):
-  # get state
-  state = env.getState()
+  # get states
+  print(i)
+  state = env.getState(i).tolist()
+  print(state)
   states.append(state)
  s["State"] = states
 
- #s["State"] = env.getState().tolist()
- #print(s["State"])
-
+ print("states set")
  step = 0
  done = False
 
  while not done and step < maxSteps:
 
-  # Getting new action
+  # Getting new simultaneous actions for all players in turn 
+  # --> for most games only one player makes a turn and the others only special non-actions
   s.update()
   
   # Performing the action
   # player is automatically switching after advance
-  done = env.advance(s["Action"])
-  #print("action {}".format(s["Action"])) 
+  '''actions = s["Action"]
+  for i in np.arange(num_players):
+    done = env.advance(actions)
   
-  # Getting Reward
-  s["Reward"] = env.getReward()
-   
-  # Storing New State
-  s["State"] = env.getState().tolist()
+  # set state
+  states  = []
+  rewards = []
+  for i in np.arange(num_players):
+    # get state
+    state = env.getState(i)
+    states.append( state )
+    # get reward
+    reward = env.getReward(i)
+    if done:
+        reward = -10.
+    rewards.append(reward)
+
+  s["State"] = states
+  s["Reward"] = rewards'''
   
   # Advancing step counter
   step = step + 1
@@ -53,11 +65,13 @@ def agent(s, env):
   s["Termination"] = "Truncated"
 
 
-def initEnvironment(e, envName, moviePath = ''):
+def initEnvironment(e, envName):
 
  # Creating environment 
  env = OSWrapper(envName)
    
+ e["Problem"]["Agents Per Environment"] = env.num_players
+
  ### Defining problem configuration for openAI Gym environments
  e["Problem"]["Type"] = "Reinforcement Learning / Discrete"
  e["Problem"]["Environment Function"] = lambda x : agent(x, env)
