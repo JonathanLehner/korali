@@ -12,7 +12,16 @@ def agent(s, env):
  launchId = s["Launch Id"]
 
  env.reset(sampleId * 1024 + launchId)
- s["State"] = env.getState().tolist()
+ num_players = env.num_players
+
+ states = []
+ for i in np.arange(num_players):
+  # get state
+  state = env.getState()
+  states.append(state)
+ s["State"] = states
+
+ #s["State"] = env.getState().tolist()
  #print(s["State"])
 
  step = 0
@@ -24,6 +33,7 @@ def agent(s, env):
   s.update()
   
   # Performing the action
+  # player is automatically switching after advance
   done = env.advance(s["Action"])
   #print("action {}".format(s["Action"])) 
   
@@ -47,11 +57,6 @@ def initEnvironment(e, envName, moviePath = ''):
 
  # Creating environment 
  env = OSWrapper(envName)
- 
- # Handling special cases
- if (envName == 'Humanoid-v2'):
-  print("Not implemented")
-  # env = XXX(env)
    
  ### Defining problem configuration for openAI Gym environments
  e["Problem"]["Type"] = "Reinforcement Learning / Discrete"
@@ -64,14 +69,7 @@ def initEnvironment(e, envName, moviePath = ''):
  
  # Generating state variable index list
  stateVariablesIndexes = range(stateVariableCount)
- 
- # Handling Environment-Specific Configuration
- 
- if (envName == 'Ant-v2'):
-  #stateVariableCount = 27
-  #stateVariablesIndexes = range(stateVariableCount) 
-  print("not implemented")
- 
+   
  # Defining State Variables
  for i in stateVariablesIndexes:
   e["Variables"][i]["Name"] = "State Variable " + str(i)

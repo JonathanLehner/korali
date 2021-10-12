@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-##  This code is a wrapper for the Leduc Poker environment in Openspiel
+##  This code is a wrapper for Openspiel
 
 ##  Copyright (c) 2018 CSE-Lab, ETH Zurich, Switzerland. All rights reserved.
 ##  Distributed under the terms of the MIT license.
@@ -33,6 +33,8 @@ class OSWrapper:
     return self.game_state.is_terminal()
 
   def advance(self, action):
+    # the legal actions depend on the game state
+    # for instance in poker the available bet sizes depend on the remaining stack of the active player
     legal_actions = self.game_state.legal_actions()
     action = int(action[0])
     if(action not in legal_actions):
@@ -55,12 +57,11 @@ class OSWrapper:
   def getState(self):
     state = np.ones(10)*-1
     cur_player = self.game_state.current_player()
-    # should not get the state at -4, which means game is over
-    # at this point the state should not be read but we add this as safety check
+    # the state of -4 means game is over
+    # sometimes the state is read after the game is over and then cur_player < 0
     if(cur_player < 0): 
       cur_player = 0 
 
-    state[0] = cur_player # Current player    
     info_state = self.game_state.observation_tensor(cur_player)
     info_state = np.asarray(info_state)
 
@@ -69,6 +70,10 @@ class OSWrapper:
   @property
   def observation_space(self):
     return self.getState()
+
+  @property
+  def num_players(self):
+    return self.game_state.num_players()
 
   @property
   def action_space(self):

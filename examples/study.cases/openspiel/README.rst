@@ -2,6 +2,8 @@ Reinforcement Learning examples on Openspiel
 ==============================================
 
 This folders contain a ready-to-use setup to run Openspiel games. 
+Turn-based multi-agent games, are implemented with a special "waiting" action.
+Illegal moves are implemented with a negative reward.
 
 Running an environment:
 -------------------------
