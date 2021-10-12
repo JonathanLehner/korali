@@ -43,18 +43,9 @@ class OSWrapper:
     does_not_wait = self.active_player != i and action[0] != -888
     does_not_play = self.active_player == i and action[0] == -888
     if(illegal_action or does_not_wait or does_not_play):
-      print("x")
-      print(action)
-      print(i)
-      print(illegal_action)
-      print(does_not_wait)
-      print(does_not_play)
-      print(legal_actions)
       self.is_failed = True
       self.failed_players[i] = -100
       return 1 # terminate when illegal action
-    else:
-      print("correct")
 
     self.game_state.apply_action(action[0])
     self.deal_chance() # completes chance actions such as dealing cards in poker

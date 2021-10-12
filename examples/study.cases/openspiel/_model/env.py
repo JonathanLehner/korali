@@ -51,8 +51,6 @@ def agent(s, env):
     rewards.append(reward)
 
   s["State"] = states
-  if(min(rewards) < 0):
-    print(rewards)
   s["Reward"] = rewards
   
   # Advancing step counter
