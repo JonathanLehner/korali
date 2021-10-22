@@ -31,6 +31,7 @@ if (found == True):
 
 e["Problem"]["Type"] = "Reinforcement Learning / Discrete"
 e["Problem"]["Environment Function"] = env
+e["Problem"]["Environment Count"] = 3
 e["Problem"]["Actions Between Policy Updates"] = 500
 e["Problem"]["Possible Actions"] = [ [ -10.0 ], [  10.0 ] ]
                                      

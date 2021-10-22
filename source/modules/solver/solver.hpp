@@ -121,28 +121,28 @@ class Solver : public Module
   
 
   /**
-  * @brief Prints solver information before the execution of the current generation.
-  */
+   * @brief Prints solver information before the execution of the current generation.
+   */
   virtual void printGenerationBefore();
 
   /**
- * @brief Prints solver information after the execution of the current generation.
- */
+   * @brief Prints solver information after the execution of the current generation.
+   */
   virtual void printGenerationAfter();
 
   /**
- * @brief Runs the current generation.
- */
+   * @brief Runs the current generation.
+   */
   virtual void runGeneration() = 0;
 
   /**
-  * @brief Initializes the solver with starting values for the first generation.
- */
+   * @brief Initializes the solver with starting values for the first generation.
+   */
   virtual void setInitialConfiguration();
 
   /**
-  * @brief Stores termination criteria for the module.
-  */
+   * @brief Stores termination criteria for the module.
+   */
   std::vector<std::string> _terminationCriteria;
 };
 

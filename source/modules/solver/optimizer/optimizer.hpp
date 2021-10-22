@@ -79,10 +79,10 @@ class Optimizer : public Solver
   
 
   /**
- * @brief Checks whether the proposed sample can be optimized
- * @param sample A Korali Sample
- * @return True, if feasible; false, otherwise.
-*/
+   * @brief Checks whether the proposed sample can be optimized
+   * @param sample A Korali Sample
+   * @return True, if feasible; false, otherwise.
+   */
   bool isSampleFeasible(const std::vector<double> &sample);
 };
 

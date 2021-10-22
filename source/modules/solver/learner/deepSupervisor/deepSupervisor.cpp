@@ -74,15 +74,15 @@ void DeepSupervisor::initialize()
   _neuralNetwork->initialize();
 
   /*****************************************************************
-  * Initializing NN hyperparameters
-  *****************************************************************/
+   * Initializing NN hyperparameters
+   *****************************************************************/
 
   // If the hyperparameters have not been specified, produce new initial ones
   if (_hyperparameters.size() == 0) _hyperparameters = _neuralNetwork->generateInitialHyperparameters();
 
   /*****************************************************************
-  * Setting up weight and bias optimization experiment
-  *****************************************************************/
+   * Setting up weight and bias optimization experiment
+   *****************************************************************/
 
   if (_neuralNetworkOptimizer == "Adam") _optimizer = new korali::fAdam(_hyperparameters.size());
   if (_neuralNetworkOptimizer == "AdaBelief") _optimizer = new korali::fAdaBelief(_hyperparameters.size());
@@ -193,7 +193,7 @@ std::vector<std::vector<float>> &DeepSupervisor::getEvaluation(const std::vector
 }
 
 // Only needed for DDPG
-//std::vector<std::vector<float>> &DeepSupervisor::getDataGradients(const std::vector<std::vector<std::vector<float>>> &input, const std::vector<std::vector<float>> &outputGradients)
+// std::vector<std::vector<float>> &DeepSupervisor::getDataGradients(const std::vector<std::vector<std::vector<float>>> &input, const std::vector<std::vector<float>> &outputGradients)
 //{
 //  const size_t N = input.size();
 //

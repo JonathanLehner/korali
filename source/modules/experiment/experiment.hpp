@@ -141,48 +141,48 @@ class Experiment : public Module
   void finalize() override;
 
   /**
-  * @brief JSON object to store the experiment's configuration
-  */
+   * @brief JSON object to store the experiment's configuration
+   */
   KoraliJson _js;
 
   /**
-  * @brief A pointer to the Experiment's logger object.
- */
+   * @brief A pointer to the Experiment's logger object.
+   */
   Logger *_logger;
 
   /**
- * @brief A pointer to the parent engine
- */
+   * @brief A pointer to the parent engine
+   */
   Engine *_engine;
 
   /**
-  * @brief JSON object to details of all the samples that have been executed, if requested by the user.
-  */
+   * @brief JSON object to details of all the samples that have been executed, if requested by the user.
+   */
   KoraliJson _sampleInfo;
 
   /**
-  * @brief Experiment Identifier
-  */
+   * @brief Experiment Identifier
+   */
   size_t _experimentId;
 
   /**
-  * @brief Experiment's coroutine (thread). It is swapped among other experiments, and sample threads.
-  */
+   * @brief Experiment's coroutine (thread). It is swapped among other experiments, and sample threads.
+   */
   cothread_t _thread;
 
   /**
-  * @brief Flag to indicate that the experiment has been initialized to prevent it from re-initializing upon resuming
-  */
+   * @brief Flag to indicate that the experiment has been initialized to prevent it from re-initializing upon resuming
+   */
   bool _isInitialized;
 
   /**
-  * @brief [Profiling] Measures the amount of time taken by saving results
-  */
+   * @brief [Profiling] Measures the amount of time taken by saving results
+   */
   double _resultSavingTime;
 
   /**
-  * @brief For testing purposes, this field establishes whether the engine is the one to run samples (default = false) or a custom function (true)
-  */
+   * @brief For testing purposes, this field establishes whether the engine is the one to run samples (default = false) or a custom function (true)
+   */
   bool _overrideEngine = false;
 
   /**
@@ -191,29 +191,29 @@ class Experiment : public Module
   std::function<void(Sample &)> _overrideFunction;
 
   /**
-  * @brief Gets an item from the JSON object at the current pointer position.
-  * @param key A pybind11 object acting as JSON key (number or string).
-  * @return A pybind11 object
- */
+   * @brief Gets an item from the JSON object at the current pointer position.
+   * @param key A pybind11 object acting as JSON key (number or string).
+   * @return A pybind11 object
+   */
   pybind11::object getItem(const pybind11::object key);
 
   /**
-  * @brief Sets an item on the JSON object at the current pointer position.
-  * @param key A pybind11 object acting as JSON key (number or string).
-  * @param val The value of the item to set.
- */
+   * @brief Sets an item on the JSON object at the current pointer position.
+   * @param key A pybind11 object acting as JSON key (number or string).
+   * @param val The value of the item to set.
+   */
   void setItem(const pybind11::object key, const pybind11::object val);
 
   /**
-  * @brief Load the state of an experiment from a Korali result file.
-  * @param path Path from which to load the experiment state.
-  * @return true, if file was found; false, otherwise
-  */
+   * @brief Load the state of an experiment from a Korali result file.
+   * @param path Path from which to load the experiment state.
+   * @return true, if file was found; false, otherwise
+   */
   bool loadState(const std::string &path);
 
   /**
    * @brief Saves the state into the experiment's result path.
-  */
+   */
   void saveState();
 
   /**
@@ -222,16 +222,16 @@ class Experiment : public Module
   void run();
 
   /**
-  * @brief C++ wrapper for the getItem operator.
-  * @param key A C++ string acting as JSON key.
-  * @return The referenced JSON object content.
- */
+   * @brief C++ wrapper for the getItem operator.
+   * @param key A C++ string acting as JSON key.
+   * @return The referenced JSON object content.
+   */
   knlohmann::json &operator[](const std::string &key);
 
   /**
-    * @brief For learner modules which have been trained, test returns an inferred output batch, from a batch of inputs to process.
-    * @param inputBatch The inputs from which to infer outputs. Format: TxBxIC (T: Time steps, B: Batch Size, IC: Input channels)
-    * @return The inferred outputs. Format: BxOC (Time steps, B: Batch Size, OC: Output channels)
+   * @brief For learner modules which have been trained, test returns an inferred output batch, from a batch of inputs to process.
+   * @param inputBatch The inputs from which to infer outputs. Format: TxBxIC (T: Time steps, B: Batch Size, IC: Input channels)
+   * @return The inferred outputs. Format: BxOC (Time steps, B: Batch Size, OC: Output channels)
    */
   std::vector<std::vector<float>> getEvaluation(const std::vector<std::vector<std::vector<float>>> &inputBatch);
 

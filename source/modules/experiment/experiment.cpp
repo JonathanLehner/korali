@@ -18,17 +18,17 @@ namespace korali
 {
 ;
 /**
-  * @brief Pointer to the current experiment in execution
+ * @brief Pointer to the current experiment in execution
  */
 Experiment *__expPointer;
 
 /**
-  * @brief Pointer to the calling thread
+ * @brief Pointer to the calling thread
  */
 cothread_t __returnThread;
 
 /**
-  * @brief Function for the initialization of new coroutine threads.
+ * @brief Function for the initialization of new coroutine threads.
  */
 void threadWrapper()
 {

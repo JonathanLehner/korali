@@ -15,8 +15,8 @@ void Discrete::initialize()
   ReinforcementLearning::initialize();
 
   /*********************************************************************
-    * Verifying Discrete Action Space
-    *********************************************************************/
+   * Verifying Discrete Action Space
+   *********************************************************************/
 
   if (_possibleActions.empty())
     KORALI_LOG_ERROR("No possible actions have been defined for the discrete RL problem (empty set detected).\n");

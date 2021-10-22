@@ -80,7 +80,7 @@ class Layer : public Module
 
   /**
    * @brief Index of the current layer within the NN
-  */
+   */
   size_t _index;
 
   /**
@@ -94,8 +94,8 @@ class Layer : public Module
   layerPipeline_t *_pipeline;
 
   /**
-  * @brief Pointer to previous layer, NULL if this is the first layer
-  */
+   * @brief Pointer to previous layer, NULL if this is the first layer
+   */
   Layer *_prevLayer;
 
   /**
@@ -104,13 +104,13 @@ class Layer : public Module
   Layer *_nextLayer;
 
   /**
-  * @brief Number of layer hyperparameters
-  */
+   * @brief Number of layer hyperparameters
+   */
   size_t _hyperparameterCount;
 
   /**
-  * @brief Starting index of hyperparameters
-  */
+   * @brief Starting index of hyperparameters
+   */
   size_t _hyperparameterIndex;
 
   /**
@@ -121,13 +121,13 @@ class Layer : public Module
   // Input/output memory elements
 
   /**
- * @brief Contains the output values of the layer
- */
+   * @brief Contains the output values of the layer
+   */
   float *_outputValues;
 
   /**
- * @brief Contains the gradients of the outputs of the layer
- */
+   * @brief Contains the gradients of the outputs of the layer
+   */
   float *_outputGradient;
 
 #ifdef _KORALI_USE_ONEDNN
@@ -137,13 +137,13 @@ class Layer : public Module
   dnnl::prop_kind _propKind;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the output result of the layer
-  */
+   * @brief oneDNN Memory object descriptor to contain the output result of the layer
+   */
   std::vector<dnnl::memory> _outputMem;
 
   /*
- * @brief oneDNN Gradients of the operation wrt to activation function
- */
+   * @brief oneDNN Gradients of the operation wrt to activation function
+   */
   std::vector<dnnl::memory> _outputGradientMem;
 
 #endif
@@ -156,30 +156,30 @@ class Layer : public Module
   cudnnForwardMode_t _forwardMode;
 
   /**
-  * @brief cuDNN Descriptor for the output tensor memory
-  */
+   * @brief cuDNN Descriptor for the output tensor memory
+   */
   cudnnTensorDescriptor_t _outputTensorDesc;
 
   /**
-  * @brief cuDNN Device memory pointer for the output tensor
-  */
+   * @brief cuDNN Device memory pointer for the output tensor
+   */
   std::vector<void *> _outputTensor;
 
   /**
-  * @brief cuDNN Device memory pointer for the output gradients tensor
-  */
+   * @brief cuDNN Device memory pointer for the output gradients tensor
+   */
   std::vector<void *> _outputGradientTensor;
 
 #endif
 
   /**
-  * @brief Default constructor
-  */
+   * @brief Default constructor
+   */
   Layer() = default;
 
   /**
-  * @brief Default destructor
-  */
+   * @brief Default destructor
+   */
   virtual ~Layer() = default;
 
   /**
@@ -195,8 +195,8 @@ class Layer : public Module
   virtual std::vector<float> generateInitialHyperparameters();
 
   /**
-  * @brief Initializes the layer's internal memory structures for hyperparameter storage
-  */
+   * @brief Initializes the layer's internal memory structures for hyperparameter storage
+   */
   virtual void createHyperparameterMemory();
 
   /**
@@ -211,14 +211,14 @@ class Layer : public Module
   virtual void createForwardPipeline();
 
   /**
-  * @brief Initializes the internal memory structures for the backward pipeline
-  */
+   * @brief Initializes the internal memory structures for the backward pipeline
+   */
   virtual void createBackwardPipeline();
 
   /**
-  * @brief Performs the forward propagation of the Wx+b operations
-  * @param t Indicates the current timestep
-  */
+   * @brief Performs the forward propagation of the Wx+b operations
+   * @param t Indicates the current timestep
+   */
   virtual void forwardData(const size_t t) = 0;
 
   /**
@@ -246,9 +246,9 @@ class Layer : public Module
   virtual void backwardData(const size_t t) = 0;
 
   /**
-  * @brief Calculates the gradients of layer hyperparameters
-  * @param t Indicates the current timestep
-  */
+   * @brief Calculates the gradients of layer hyperparameters
+   * @param t Indicates the current timestep
+   */
   virtual void backwardHyperparameters(const size_t t);
 };
 

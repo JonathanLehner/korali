@@ -9,73 +9,73 @@ class __className__ : public __parentClassName__
 {
   private:
   /**
-  * @brief Stores the actual Korali object for the psi experiment
-  */
+   * @brief Stores the actual Korali object for the psi experiment
+   */
   korali::Experiment _psiExperimentObject;
 
   /**
-  * @brief Stores the actual Korali object for the theta experiment
-  */
+   * @brief Stores the actual Korali object for the theta experiment
+   */
   korali::Experiment _subExperimentObject;
 
   /**
-  * @brief Stores the number of variables defined in the Psi problem
-  */
+   * @brief Stores the number of variables defined in the Psi problem
+   */
   size_t _psiVariableCount;
 
   /**
-  * @brief Stores the number of samples in the Psi problem experiment to use as input
-  */
+   * @brief Stores the number of samples in the Psi problem experiment to use as input
+   */
   size_t _psiProblemSampleCount;
 
   /**
-  * @brief Stores the sample coordinates of the Psi Problem
-  */
+   * @brief Stores the sample coordinates of the Psi Problem
+   */
   std::vector<std::vector<double>> _psiProblemSampleCoordinates;
 
   /**
- * @brief Stores the sample logLikelihoods of the Psi Problem
- */
+   * @brief Stores the sample logLikelihoods of the Psi Problem
+   */
   std::vector<double> _psiProblemSampleLogLikelihoods;
 
   /**
-  * @brief Stores the sample logPriors of the Psi Problem
-  */
+   * @brief Stores the sample logPriors of the Psi Problem
+   */
   std::vector<double> _psiProblemSampleLogPriors;
 
   /**
-  * @brief Stores the Problem module of the Psi problem experiment to use as input
-  */
+   * @brief Stores the Problem module of the Psi problem experiment to use as input
+   */
   korali::problem::hierarchical::Psi *_psiProblem;
 
   /**
-  * @brief Stores the number of variables defined in the Sub problem
-  */
+   * @brief Stores the number of variables defined in the Sub problem
+   */
   size_t _subProblemVariableCount;
 
   /**
-  * @brief Stores the number of samples in the sub problem experiment to use as input
-  */
+   * @brief Stores the number of samples in the sub problem experiment to use as input
+   */
   size_t _subProblemSampleCount;
 
   /**
-  * @brief Stores the sample coordinates of the sub Problem
-  */
+   * @brief Stores the sample coordinates of the sub Problem
+   */
   std::vector<std::vector<double>> _subProblemSampleCoordinates;
 
   /**
- * @brief Stores the sample logLikelihoods of the sub Problem
- */
+   * @brief Stores the sample logLikelihoods of the sub Problem
+   */
   std::vector<double> _subProblemSampleLogLikelihoods;
 
   /**
-  * @brief Stores the sample logPriors of the sub Problem
-  */
+   * @brief Stores the sample logPriors of the sub Problem
+   */
   std::vector<double> _subProblemSampleLogPriors;
 
   /**
-  * @brief Stores the precomputed log denomitator to speed up calculations
-  */
+   * @brief Stores the precomputed log denomitator to speed up calculations
+   */
   std::vector<double> _precomputedLogDenominator;
 
   public:

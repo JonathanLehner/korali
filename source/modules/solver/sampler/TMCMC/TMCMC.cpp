@@ -136,7 +136,7 @@ void TMCMC::runGeneration()
     }
 
     size_t finishedId = KORALI_WAITANY(samples);
-    //printf("%s\n", samples[finishedId]._js.getJson().dump(2).c_str());
+    // printf("%s\n", samples[finishedId]._js.getJson().dump(2).c_str());
     _chainPendingEvaluation[finishedId] = false;
 
     _chainCandidatesLogLikelihoods[finishedId] = KORALI_GET(double, samples[finishedId], "logLikelihood");
@@ -428,7 +428,7 @@ void TMCMC::calculateProposals(std::vector<Sample> &samples)
   for (size_t c = 0; c < numFIMCalculations; c++)
   {
     size_t finishedId = KORALI_WAITANY(samples);
-    //printf("%s\n", samples[finishedId]._js.getJson().dump(2).c_str());
+    // printf("%s\n", samples[finishedId]._js.getJson().dump(2).c_str());
 
     // reset
     std::fill(_chainCandidatesCovariance[finishedId].begin(), _chainCandidatesCovariance[finishedId].end(), 0.0);

@@ -77,8 +77,8 @@ class Concurrent : public Conduit
   std::vector<std::vector<int>> _resultSizePipe;
 
   /**
-  * @brief OS Pipe to handle sample parameter communication to worker processes
-  */
+   * @brief OS Pipe to handle sample parameter communication to worker processes
+   */
   std::vector<std::vector<int>> _inputsPipe;
 
   bool isRoot() override;

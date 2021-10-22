@@ -27,13 +27,13 @@ namespace solver
 ;
 
 /**
-* @brief This enumerator details all possible termination statuses for a given episode's experience
-*/
+ * @brief This enumerator details all possible termination statuses for a given episode's experience
+ */
 enum termination_t
 {
   /**
-  * @brief The experience is non-terminal
-  */
+   * @brief The experience is non-terminal
+   */
   e_nonTerminal = 0,
 
   /**
@@ -42,36 +42,41 @@ enum termination_t
   e_terminal = 1,
 
   /**
-   * @brief This is the terminal experience in a truncated episode
+   * @brief This is the terminal experience in a truncated episode.
    *        (i.e., should have continued, but it was artificially truncated to limit running time)
    */
   e_truncated = 2
 };
 
 /**
-* @brief Structure to store policy information
-*/
+ * @brief Structure to store policy information
+ */
 struct policy_t
 {
   /**
-  * @brief Contains state value (V) estimation for the given state / policy combination
-  */
+   * @brief Contains state value (V) estimation for the given state / policy combination
+   */
   float stateValue;
 
   /**
-  * @brief Contains the parameters that define the policy distribution used to produced the action.
-  *        For continuous policies, it depends on the distribution selected.
-  *        For discrete policies, it contains the categorical probability of every action.
-  */
+   * @brief Contains the parameters that define the policy distribution used to produced the action.
+   *        For continuous policies, it depends on the distribution selected.
+   *        For discrete policies, the q-values of every action and the temperature parameter for the softMax function.
+   */
   std::vector<float> distributionParameters;
 
   /**
-  * @brief [Discrete] Stores the index of the selected experience
-  */
+   * @brief [Discrete] Stores the index of the selected experience.
+   */
   size_t actionIndex;
 
   /**
-   * @brief [Continuous] Stores the Unbounded Actions of the Squashed Normal Policy Distribution
+   * @brief [Discrete] Stores the action probabilities of the categorial distribution.
+   */
+  std::vector<float> actionProbabilities;
+
+  /**
+   * @brief [Continuous] Stores the Unbounded Actions of the Squashed Normal Policy Distribution.
    */
   std::vector<float> unboundedAction;
 };
@@ -147,6 +152,10 @@ class Agent : public Solver
   */
    float _discountFactor;
   /**
+  * @brief Represents the discount factor to weight future experiences.
+  */
+   float _importanceWeightTruncationLevel;
+  /**
   * @brief Indicates whether to serialize and store the experience replay after each generation. Disabling will reduce I/O overheads but will disable the checkpoint/resume function.
   */
    int _experienceReplaySerialize;
@@ -194,6 +203,10 @@ class Agent : public Solver
   * @brief The factor (f) by which te reward is scaled down. R = f * R
   */
    float _rewardOutboundPenalizationFactor;
+  /**
+  * @brief [Internal Use] Stores the number of parameters that determine the probability distribution for the current state sequence.
+  */
+   size_t _policyParameterCount;
   /**
   * @brief [Internal Use] Lower bounds for actions.
   */
@@ -343,8 +356,8 @@ class Agent : public Solver
   
 
   /**
-  * @brief Array of agents collecting new experiences
-  */
+   * @brief Array of agents collecting new experiences
+   */
   std::vector<Sample> _agents;
 
   /**
@@ -378,8 +391,8 @@ class Agent : public Solver
   size_t _sessionExperiencesUntilStartSize;
 
   /**
-  * @brief Stores the state of the experience
-  */
+   * @brief Stores the state of the experience
+   */
   cBuffer<std::vector<float>> _stateVector;
 
   /**
@@ -388,18 +401,18 @@ class Agent : public Solver
   cBuffer<std::vector<float>> _actionVector;
 
   /**
-  * @brief Stores the current sequence of states observed by the agent (limited to time sequence length defined by the user)
-  */
+   * @brief Stores the current sequence of states observed by the agent (limited to time sequence length defined by the user)
+   */
   cBuffer<std::vector<float>> _stateTimeSequence;
 
   /**
-  * @brief Episode that experience belongs to
-  */
+   * @brief Episode that experience belongs to
+   */
   cBuffer<size_t> _episodeIdVector;
 
   /**
-  * @brief Position within the episode of this experience
-  */
+   * @brief Position within the episode of this experience
+   */
   cBuffer<size_t> _episodePosVector;
 
   /**
@@ -473,18 +486,18 @@ class Agent : public Solver
   cBuffer<float> _stateValueVector;
 
   /**
-  * @brief Stores the priority annealing rate.
-  */
+   * @brief Stores the priority annealing rate.
+   */
   float _priorityAnnealingRate;
 
   /**
-  * @brief Stores the importance weight annealing factor.
-  */
+   * @brief Stores the importance weight annealing factor.
+   */
   float _importanceWeightAnnealingRate;
 
   /**
-  * @brief Storage for the pointer to the learning problem
-  */
+   * @brief Storage for the pointer to the learning problem
+   */
   problem::ReinforcementLearning *_problem;
 
   /**
@@ -493,8 +506,8 @@ class Agent : public Solver
   std::random_device rd;
 
   /**
-  * @brief Mersenne twister for the generation of shuffling numbers
-  */
+   * @brief Mersenne twister for the generation of shuffling numbers
+   */
   std::mt19937 *mt;
 
   /****************************************************************************************************
@@ -502,13 +515,13 @@ class Agent : public Solver
    ***************************************************************************************************/
 
   /**
-  * @brief [Profiling] Measures the amount of time taken by the generation
-  */
+   * @brief [Profiling] Measures the amount of time taken by the generation
+   */
   double _sessionRunningTime;
 
   /**
-  * @brief [Profiling] Measures the amount of time taken by ER serialization
-  */
+   * @brief [Profiling] Measures the amount of time taken by ER serialization
+   */
   double _sessionSerializationTime;
 
   /**
@@ -541,13 +554,13 @@ class Agent : public Solver
    ***************************************************************************************************/
 
   /**
-  * @brief [Profiling] Measures the amount of time taken by the generation
-  */
+   * @brief [Profiling] Measures the amount of time taken by the generation
+   */
   double _generationRunningTime;
 
   /**
-  * @brief [Profiling] Measures the amount of time taken by ER serialization
-  */
+   * @brief [Profiling] Measures the amount of time taken by ER serialization
+   */
   double _generationSerializationTime;
 
   /**
@@ -596,43 +609,42 @@ class Agent : public Solver
   void normalizeStateNeuralNetwork(NeuralNetwork *neuralNetwork, size_t miniBatchSize, size_t normalizationSteps);
 
   /**
-  * @brief Additional post-processing of episode after episode terminated.
-  * @param episodeId The unique identifier of the provided episode
-  * @param episode A vector of experiences pertaining to the episode.
-  */
-  void processEpisode(size_t episodeId, knlohmann::json &episode);
+   * @brief Additional post-processing of episode after episode terminated.
+   * @param episode A vector of experiences pertaining to the episode.
+   */
+  void processEpisode(knlohmann::json &episode);
 
   /**
-  * @brief Generates an experience mini batch from the replay memory
-  * @param miniBatchSize Size of the mini batch to create
-  * @return A vector with the indexes to the experiences in the mini batch
-  */
+   * @brief Generates an experience mini batch from the replay memory
+   * @param miniBatchSize Size of the mini batch to create
+   * @return A vector with the indexes to the experiences in the mini batch
+   */
   std::vector<size_t> generateMiniBatch(size_t miniBatchSize);
 
   /**
-  * @brief Updates the state value, retrace, importance weight and other metadata for a given minibatch of experiences
-  * @param miniBatch The mini batch of experience ids to update
-  * @param policyData The policy to use to evaluate the experiences
-  */
+   * @brief Updates the state value, retrace, importance weight and other metadata for a given minibatch of experiences
+   * @param miniBatch The mini batch of experience ids to update
+   * @param policyData The policy to use to evaluate the experiences
+   */
   void updateExperienceMetadata(const std::vector<size_t> &miniBatch, const std::vector<policy_t> &policyData);
 
   /**
-  * @brief Resets time sequence within the agent, to forget past actions from other episodes
-  */
+   * @brief Resets time sequence within the agent, to forget past actions from other episodes
+   */
   void resetTimeSequence();
 
   /**
-  * @brief Function to pass a state time series through the NN and calculates the action probabilities, along with any additional information
-  * @param stateBatch The batch of state time series (Format: BxTxS, B is batch size, T is the time series lenght, and S is the state size)
-  * @return A JSON object containing the information produced by the policies given the current state series
-  */
+   * @brief Function to pass a state time series through the NN and calculates the action probabilities, along with any additional information
+   * @param stateBatch The batch of state time series (Format: BxTxS, B is batch size, T is the time series lenght, and S is the state size)
+   * @return A JSON object containing the information produced by the policies given the current state series
+   */
   virtual std::vector<policy_t> runPolicy(const std::vector<std::vector<std::vector<float>>> &stateBatch) = 0;
 
   /**
-  * @brief Calculates the starting experience index of the time sequence for the selected experience
-  * @param expId The index of the latest experience in the sequence
-  * @return The starting time sequence index
-  */
+   * @brief Calculates the starting experience index of the time sequence for the selected experience
+   * @param expId The index of the latest experience in the sequence
+   * @return The starting time sequence index
+   */
   size_t getTimeSequenceStartExpId(size_t expId);
 
   /**
@@ -711,8 +723,8 @@ class Agent : public Solver
    ***************************************************************************************************/
 
   /**
-  * @brief Trains the Agent's policy, based on the new experiences
-  */
+   * @brief Trains the Agent's policy, based on the new experiences
+   */
   virtual void trainPolicy() = 0;
 
   /**
@@ -722,9 +734,9 @@ class Agent : public Solver
   virtual knlohmann::json getAgentPolicy() = 0;
 
   /**
-  * @brief Updates the agent's hyperparameters
-  * @param hyperparameters The hyperparameters to update the agent.
-  */
+   * @brief Updates the agent's hyperparameters
+   * @param hyperparameters The hyperparameters to update the agent.
+   */
   virtual void setAgentPolicy(const knlohmann::json &hyperparameters) = 0;
 
   /**

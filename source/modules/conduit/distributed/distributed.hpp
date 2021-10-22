@@ -59,8 +59,8 @@ class Distributed : public Conduit
   
 
   /**
-  * @brief ID of the current rank.
-  */
+   * @brief ID of the current rank.
+   */
   int _rankId;
 
   /**
@@ -69,28 +69,28 @@ class Distributed : public Conduit
   int _rankCount;
 
   /**
-  * @brief Number of Korali Teams in execution
-  */
+   * @brief Number of Korali Teams in execution
+   */
   int _workerCount;
 
   /**
-  * @brief Signals whether the worker has been assigned a team
-  */
+   * @brief Signals whether the worker has been assigned a team
+   */
   int _workerIdSet;
 
   /**
- * @brief Local ID the rank within its Korali Worker
- */
+   * @brief Local ID the rank within its Korali Worker
+   */
   int _localRankId;
 
   /**
-  * @brief Storage that contains the rank teams for each worker
-  */
+   * @brief Storage that contains the rank teams for each worker
+   */
   std::vector<std::vector<int>> _workerTeams;
 
   /**
-  * @brief Map that indicates to which worker does the current rank correspond to
-  */
+   * @brief Map that indicates to which worker does the current rank correspond to
+   */
   std::vector<int> _rankToWorkerMap;
 
   /**
@@ -112,9 +112,9 @@ class Distributed : public Conduit
   size_t getProcessId() override;
 
   /**
-  * @brief Determines which rank is the root.
-  * @return The rank id of the root rank.
-  */
+   * @brief Determines which rank is the root.
+   * @return The rank id of the root rank.
+   */
   int getRootRank();
   bool isRoot() override;
   bool isWorkerLeadRank() override;

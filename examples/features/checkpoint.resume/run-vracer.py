@@ -31,6 +31,7 @@ if (found == True):
 
 e["Problem"]["Type"] = "Reinforcement Learning / Continuous"
 e["Problem"]["Environment Function"] = env
+e["Problem"]["Environment Count"] = 3
 e["Problem"]["Actions Between Policy Updates"] = 500
 
 ### Defining State variables

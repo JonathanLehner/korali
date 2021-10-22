@@ -163,8 +163,8 @@ void Linear::createForwardPipeline()
 void Linear::createBackwardPipeline()
 {
   /*********************************************************************************
-  *  Initializing memory objects and primitives for BACKWARD propagation
-  *********************************************************************************/
+   *  Initializing memory objects and primitives for BACKWARD propagation
+   *********************************************************************************/
 
   // Checking Layer sizes
   ssize_t OC = _outputChannels;
@@ -358,7 +358,7 @@ void Linear::backwardHyperparameters(size_t t)
 #ifdef _KORALI_USE_ONEDNN
   if (_nn->_engine == "OneDNN")
   {
-    //Arguments for the backward propagation of the gradient wrt Weights and Biases
+    // Arguments for the backward propagation of the gradient wrt Weights and Biases
     std::unordered_map<int, dnnl::memory> backwardWeightsArgs;
     backwardWeightsArgs[DNNL_ARG_SRC] = _prevLayer->_outputMem[t];    // Input
     backwardWeightsArgs[DNNL_ARG_DIFF_DST] = _outputGradientMem[t];   // Input

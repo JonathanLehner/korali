@@ -93,23 +93,23 @@ class GaussianProcess : public Learner
   
 
   /**
-  * @brief Storage for the output values
-  */
+   * @brief Storage for the output values
+   */
   std::vector<std::vector<float>> _outputValues;
 
   /**
-  * @brief Korali engine for optimizing NN weights and biases
-  */
+   * @brief Korali engine for optimizing NN weights and biases
+   */
   problem::SupervisedLearning *_problem;
 
   /**
-  * @brief Pointer to the gaussian processes library
-  */
+   * @brief Pointer to the gaussian processes library
+   */
   std::unique_ptr<libgp::GaussianProcess> _gp;
 
   /**
-  * @brief Korali experiment for optimizing the GP's parameters
-  */
+   * @brief Korali experiment for optimizing the GP's parameters
+   */
   Experiment _koraliExperiment;
 
   std::vector<std::vector<float>> &getEvaluation(const std::vector<std::vector<std::vector<float>>> &input) override;

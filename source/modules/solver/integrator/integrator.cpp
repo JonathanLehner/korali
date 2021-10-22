@@ -19,7 +19,7 @@ void Integrator::setInitialConfiguration()
   _maxModelEvaluations = std::min(_maxModelEvaluations, _sampleCount);
 
   if (_k->_variables[0]->_samplePoints.size() > 0)
-  { //quadrature
+  { // quadrature
     _indicesHelper.resize(_variableCount);
     _indicesHelper[0] = _k->_variables[0]->_samplePoints.size();
     _indicesHelper[1] = _k->_variables[0]->_samplePoints.size();
@@ -46,8 +46,8 @@ void Integrator::runGeneration()
     rest = _modelEvaluationCount;
     for (int d = _variableCount - 1; d >= 0; d--)
     {
-      //quadrature
-      // We assume i = _index[0] + _index[1]*_sample[0].size() + _index[1]*_index[2]*_sample[1].size() + .....
+      // quadrature
+      //  We assume i = _index[0] + _index[1]*_sample[0].size() + _index[1]*_index[2]*_sample[1].size() + .....
       if (d == 0)
         index = rest % _indicesHelper[d];
       else

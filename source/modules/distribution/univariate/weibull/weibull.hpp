@@ -75,42 +75,42 @@ class Weibull : public Univariate
   
 
   /*
-  * @brief Updates distribution with new parameter (here shape and scale).
-  */
+   * @brief Updates distribution with new parameter (here shape and scale).
+   */
   void updateDistribution() override;
 
   /**
- * @brief Gets the probability density of the distribution at point x.
- * @param x point to evaluate P(x)
- * @return Value of the probability density.
- */
+   * @brief Gets the probability density of the distribution at point x.
+   * @param x point to evaluate P(x)
+   * @return Value of the probability density.
+   */
   double getDensity(const double x) const override;
 
   /**
- * @brief Gets the Log probability density of the distribution at point x.
- * @param x point to evaluate log(P(x))
- * @return Log of probability density.
- */
+   * @brief Gets the Log probability density of the distribution at point x.
+   * @param x point to evaluate log(P(x))
+   * @return Log of probability density.
+   */
   double getLogDensity(double x) const override;
 
   /**
- * @brief Gets the Gradient of the log probability density of the distribution wrt. to x.
- * @param x point to evaluate grad(log(P(x)))
- * @return Gradient of log of probability density.
- */
+   * @brief Gets the Gradient of the log probability density of the distribution wrt. to x.
+   * @param x point to evaluate grad(log(P(x)))
+   * @return Gradient of log of probability density.
+   */
   double getLogDensityGradient(double x) const override;
 
   /**
- * @brief Gets the Gradient of the log probability density of the distribution wrt. to x.
- * @param x point to evaluate grad(log(P(x)))
- * @return Gradient of log of probability density.
- */
+   * @brief Gets the Gradient of the log probability density of the distribution wrt. to x.
+   * @param x point to evaluate grad(log(P(x)))
+   * @return Gradient of log of probability density.
+   */
   double getLogDensityHessian(double x) const override;
 
   /**
-  * @brief Draws and returns a random number from the distribution.
-  * @return Random real number.
-  */
+   * @brief Draws and returns a random number from the distribution.
+   * @return Random real number.
+   */
   double getRandomNumber() override;
 };
 

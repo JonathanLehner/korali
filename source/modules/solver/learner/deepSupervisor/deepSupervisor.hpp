@@ -130,18 +130,18 @@ class DeepSupervisor : public Learner
   
 
   /**
- * @brief Korali Problem for optimizing NN weights and biases
- */
+   * @brief Korali Problem for optimizing NN weights and biases
+   */
   problem::SupervisedLearning *_problem;
 
   /**
- * @brief Korali Experiment for optimizing the NN's weights and biases
- */
+   * @brief Korali Experiment for optimizing the NN's weights and biases
+   */
   korali::Experiment _optExperiment;
 
   /**
- * @brief Gradient-based solver pointer to access directly (for performance)
- */
+   * @brief Gradient-based solver pointer to access directly (for performance)
+   */
   korali::fGradientBasedOptimizer *_optimizer;
 
   /**

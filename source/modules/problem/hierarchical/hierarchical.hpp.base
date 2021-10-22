@@ -11,34 +11,34 @@ class __className__ : public __parentClassName__
   void initialize() override;
 
   /**
-  * @brief Checks whether the proposed sample fits within the range of the prior distribution.
-  * @param sample A Korali Sample
-  * @return True, if feasible; false, otherwise.
- */
+   * @brief Checks whether the proposed sample fits within the range of the prior distribution.
+   * @param sample A Korali Sample
+   * @return True, if feasible; false, otherwise.
+   */
   bool isSampleFeasible(korali::Sample &sample);
 
   /**
    * @brief Produces a generic evaluation from the Posterior distribution of the sample, for optimization with CMAES, DEA, storing it in and stores it in sample["F(x)"].
    * @param sample A Korali Sample
-  */
+   */
   virtual void evaluate(korali::Sample &sample);
 
   /**
-  * @brief Evaluates the log prior of the given sample, and stores it in sample["Log Prior"]
-  * @param sample A Korali Sample
-  */
+   * @brief Evaluates the log prior of the given sample, and stores it in sample["Log Prior"]
+   * @param sample A Korali Sample
+   */
   void evaluateLogPrior(korali::Sample &sample);
 
   /**
- * @brief Evaluates the log likelihood of the given sample, and stores it in sample["Log Likelihood"]
- * @param sample A Korali Sample
- */
+   * @brief Evaluates the log likelihood of the given sample, and stores it in sample["Log Likelihood"]
+   * @param sample A Korali Sample
+   */
   virtual void evaluateLogLikelihood(korali::Sample &sample) = 0;
 
   /**
- * @brief Evaluates the log posterior of the given sample, and stores it in sample["Log Posterior"]
- * @param sample A Korali Sample
- */
+   * @brief Evaluates the log posterior of the given sample, and stores it in sample["Log Posterior"]
+   * @param sample A Korali Sample
+   */
   void evaluateLogPosterior(korali::Sample &sample);
 };
 

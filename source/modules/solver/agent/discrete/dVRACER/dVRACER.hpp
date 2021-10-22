@@ -70,8 +70,8 @@ class dVRACER : public Discrete
   learner::DeepSupervisor *_criticPolicyLearner;
 
   /**
-  * @brief Korali experiment for obtaining the agent's action
-  */
+   * @brief Korali experiment for obtaining the agent's action
+   */
   korali::Experiment _criticPolicyExperiment;
 
   /**

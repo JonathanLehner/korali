@@ -56,33 +56,33 @@ class LSTM : public Recurrent
 #ifdef _KORALI_USE_ONEDNN
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the cell (LSTM) state of the recurrent layer -- vector, one per timestep
-  */
+   * @brief oneDNN Memory object descriptor to contain the cell (LSTM) state of the recurrent layer -- vector, one per timestep
+   */
   std::vector<dnnl::memory> _cellStateMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the gradients of the cell (LSTM) state of the recurrent layer -- vector, one per timestep
-  */
+   * @brief oneDNN Memory object descriptor to contain the gradients of the cell (LSTM) state of the recurrent layer -- vector, one per timestep
+   */
   std::vector<dnnl::memory> _cellStateGradientMem;
 
   /**
-  * @brief oneDNN primitive attributes that describe the forward LSTM primitive
-  */
+   * @brief oneDNN primitive attributes that describe the forward LSTM primitive
+   */
   dnnl::lstm_forward::primitive_desc _forwardLSTMPrimitiveDesc;
 
   /**
-  * @brief oneDNN primitive to run the forward LSTM operation
-  */
+   * @brief oneDNN primitive to run the forward LSTM operation
+   */
   dnnl::primitive _forwardLSTMPrimitive;
 
   /**
-  * @brief oneDNN primitive attributes that describe the backward LSTM primitive
-  */
+   * @brief oneDNN primitive attributes that describe the backward LSTM primitive
+   */
   dnnl::lstm_backward::primitive_desc _backwardLSTMPrimitiveDesc;
 
   /**
-  * @brief oneDNN primitive to run the backward LSTM operation
-  */
+   * @brief oneDNN primitive to run the backward LSTM operation
+   */
   dnnl::primitive _backwardLSTMPrimitive;
 
 #endif
@@ -90,13 +90,13 @@ class LSTM : public Recurrent
 #ifdef _KORALI_USE_CUDNN
 
   /**
-  * @brief cuDNN Descriptor for the cell state tensor memory
-  */
+   * @brief cuDNN Descriptor for the cell state tensor memory
+   */
   cudnnTensorDescriptor_t _cTensorDesc;
 
   /**
-  * @brief cuDNN Device memory pointers for the internal layer's cell (LSTM) state input
-  */
+   * @brief cuDNN Device memory pointers for the internal layer's cell (LSTM) state input
+   */
   std::vector<void *> _cStateTensor;
 
   /**

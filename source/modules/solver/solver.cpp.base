@@ -3,18 +3,18 @@
 __startNamespace__;
 
 /**
-* @brief Prints solver information before the execution of the current generation.
-*/
+ * @brief Prints solver information before the execution of the current generation.
+ */
 void __className__::printGenerationBefore(){};
 
 /**
-* @brief Prints solver information after the execution of the current generation.
-*/
+ * @brief Prints solver information after the execution of the current generation.
+ */
 void __className__::printGenerationAfter(){};
 
 /**
-* @brief Initializes the solver with starting values for the first generation.
-*/
+ * @brief Initializes the solver with starting values for the first generation.
+ */
 void __className__::setInitialConfiguration(){};
 
 __moduleAutoCode__;

@@ -24,8 +24,8 @@ void VRACER::initializeAgent()
   _statisticsAverageActionSigmas.resize(_problem->_actionVectorSize);
 
   /*********************************************************************
- * Initializing Critic/Policy Neural Network Optimization Experiment
- *********************************************************************/
+   * Initializing Critic/Policy Neural Network Optimization Experiment
+   *********************************************************************/
 
   _criticPolicyExperiment["Problem"]["Type"] = "Supervised Learning";
   _criticPolicyExperiment["Problem"]["Max Timesteps"] = _timeSequenceLength;
@@ -125,7 +125,7 @@ void VRACER::calculatePolicyGradients(const std::vector<size_t> &miniBatch)
     const float expVtbc = _retraceValueVector[expId];
 
     // Storage for the update gradient
-    std::vector<float> gradientLoss(1 + 2 * _problem->_actionVectorSize);
+    std::vector<float> gradientLoss(1 + _policyParameterCount);
 
     // Gradient of Value Function V(s) (eq. (9); *-1 because the optimizer is maximizing)
     gradientLoss[0] = expVtbc - V;
@@ -153,11 +153,11 @@ void VRACER::calculatePolicyGradients(const std::vector<size_t> &miniBatch)
       // Compute Off-Policy Objective (eq. 5)
       float lossOffPolicy = Qret - V;
 
-      // Compute Policy Gradient wrt Params
+      // Compute IW Gradient wrt params
       auto polGrad = calculateImportanceWeightGradient(expAction, curPolicy, expPolicy);
 
       // Set Gradient of Loss wrt Params
-      for (size_t i = 0; i < 2 * _problem->_actionVectorSize; i++)
+      for (size_t i = 0; i < _policyParameterCount; i++)
         gradientLoss[1 + i] = _experienceReplayOffPolicyREFERBeta * lossOffPolicy * polGrad[i];
     }
 
@@ -166,7 +166,7 @@ void VRACER::calculatePolicyGradients(const std::vector<size_t> &miniBatch)
 
     // Step towards old policy (gradient pointing to larger difference between old and current policy)
     const float klGradMultiplier = -(1.0f - _experienceReplayOffPolicyREFERBeta);
-    for (size_t i = 0; i < 2 * _problem->_actionVectorSize; i++)
+    for (size_t i = 0; i < _policyParameterCount; i++)
       gradientLoss[1 + i] += klGradMultiplier * klGrad[i];
 
     for (size_t i = 0; i < _problem->_actionVectorSize; i++)

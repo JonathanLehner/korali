@@ -49,10 +49,10 @@ class Problem : public Module
   
 
   /**
-     * @brief Evaluates whether at least one of constraints have been met.
-     * @param operation Name of the operation
-     * @param sample A Korali Sample
-  */
+   * @brief Evaluates whether at least one of constraints have been met.
+   * @param operation Name of the operation
+   * @param sample A Korali Sample
+   */
 };
 
 } //korali

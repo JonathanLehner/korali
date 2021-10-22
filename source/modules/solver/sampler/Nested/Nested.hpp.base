@@ -10,7 +10,7 @@ __startNamespace__;
 
 /**
  * @brief Ellipse object to generate bounds.
-*/
+ */
 struct ellipse_t
 {
   /**
@@ -37,7 +37,7 @@ struct ellipse_t
 
   /**
    * @brief Dimension of ellipsoid.
-  */
+   */
   size_t dim;
 
   /**
@@ -61,27 +61,27 @@ struct ellipse_t
   std::vector<double> mean;
 
   /**
-    * @brief Covariance Matrix of samples in ellipse.
+   * @brief Covariance Matrix of samples in ellipse.
    */
   std::vector<double> cov;
 
   /**
-    * @brief Inverse of Covariance Matrix.
+   * @brief Inverse of Covariance Matrix.
    */
   std::vector<double> invCov;
 
   /**
-    * @brief Axes of the ellipse.
+   * @brief Axes of the ellipse.
    */
   std::vector<double> axes;
 
   /**
-    * @brief Eigenvalues of the ellipse.
+   * @brief Eigenvalues of the ellipse.
    */
   std::vector<double> evals;
 
   /**
-    * @brief Principal axes of the ellipse.
+   * @brief Principal axes of the ellipse.
    */
   std::vector<double> paxes;
 
@@ -100,191 +100,191 @@ class __className__ : public __parentClassName__
 {
   private:
   /*
-  * @brief Seed for the shuffle randomizer
-  */
+   * @brief Seed for the shuffle randomizer
+   */
   size_t _shuffleSeed;
 
   /*
-  * @brief Storing ellipses (only relevant for Multi Ellipsoidal sampling).
-  */
+   * @brief Storing ellipses (only relevant for Multi Ellipsoidal sampling).
+   */
   std::vector<ellipse_t> _ellipseVector;
 
   /*
-  * @brief Init and run first Generation.
-  */
+   * @brief Init and run first Generation.
+   */
   void runFirstGeneration();
 
   /*
-  * @brief Update the Bounds (Box, Ellipsoid or Multi Ellipsoid).
-  */
+   * @brief Update the Bounds (Box, Ellipsoid or Multi Ellipsoid).
+   */
   void updateBounds();
 
   /*
    * @brief Transformation from unit domain into prior domain.
    * @param sample Sample to transform.
-  */
+   */
   void priorTransform(std::vector<double> &sample) const;
 
   /*
-  * @brief Generate new candidates to evaluate.
-  */
+   * @brief Generate new candidates to evaluate.
+   */
   void generateCandidates();
 
   /**
-  * @brief Generate new samples uniformly in Box
-  */
+   * @brief Generate new samples uniformly in Box
+   */
   void generateCandidatesFromBox();
 
   /**
-  * @brief Generates a sample uniformly in Ellipse
-  * @param ellipse Bounding ellipsoid from which to sample.
-  * @param sample Generated sample.
-  */
+   * @brief Generates a sample uniformly in Ellipse
+   * @param ellipse Bounding ellipsoid from which to sample.
+   * @param sample Generated sample.
+   */
   void generateSampleFromEllipse(const ellipse_t &ellipse, std::vector<double> &sample) const;
 
   /**
-  * @brief Generate new samples uniformly in Ellipse
-  */
+   * @brief Generate new samples uniformly in Ellipse
+   */
   void generateCandidatesFromEllipse();
 
   /**
-  * @brief Generate new samples uniformly from multiple Ellipses
-  */
+   * @brief Generate new samples uniformly from multiple Ellipses
+   */
   void generateCandidatesFromMultiEllipse();
 
   /*
-  * @brief Process Generation after receiving all results.
-  */
+   * @brief Process Generation after receiving all results.
+   */
   bool processGeneration();
 
   /*
-  * @brief Calculates the log prior weight.
-  */
+   * @brief Calculates the log prior weight.
+   */
   double logPriorWeight(std::vector<double> &sample);
 
   /*
    * @brief Caclculate volume of bounds.
-  */
+   */
   void setBoundsVolume();
 
   /*
-  * @brief Add all live samples to sample data base.
-  */
+   * @brief Add all live samples to sample data base.
+   */
   void consumeLiveSamples();
 
   /*
-  * @brief Updates bounding Box.
-  */
+   * @brief Updates bounding Box.
+   */
   void updateBox();
 
   /*
-  * @brief Sorts live sample ranks ascending based on loglikelihood and prior weight evaluation.
- */
+   * @brief Sorts live sample ranks ascending based on loglikelihood and prior weight evaluation.
+   */
   void sortLiveSamplesAscending();
 
   /*
-  * @brief Remove sample from live samples and move it to dead samples.
-  * @param sampleIdx Index of sample in live samples to process.
-  */
+   * @brief Remove sample from live samples and move it to dead samples.
+   * @param sampleIdx Index of sample in live samples to process.
+   */
   void updateDeadSamples(size_t sampleIdx);
 
   /*
-  * @brief Generate posterior distribution from sample data base.
-  */
+   * @brief Generate posterior distribution from sample data base.
+   */
   void generatePosterior();
 
   /*
-  * @brief Calculate L2 distance between two vectors.
-  * @param sampleOne Vector one
-  * @param sampleTwo Vector two
-  */
+   * @brief Calculate L2 distance between two vectors.
+   * @param sampleOne Vector one
+   * @param sampleTwo Vector two
+   */
   double l2distance(const std::vector<double> &sampleOne, const std::vector<double> &sampleTwo) const;
 
   /*
-  * @brief Updates bounding Ellipse (mean, cov and volume).
-  * @param ellipse Ellipse to be updated.
-  */
+   * @brief Updates bounding Ellipse (mean, cov and volume).
+   * @param ellipse Ellipse to be updated.
+   */
   bool updateEllipse(ellipse_t &ellipse) const;
 
   /*
-  * @brief Updates ellipses based on Multi Nest.
-  */
+   * @brief Updates ellipses based on Multi Nest.
+   */
   void updateMultiEllipse();
 
   /*
-  * @brief Initializes the ellipse vector with one ellipse..
-  */
+   * @brief Initializes the ellipse vector with one ellipse..
+   */
   void initEllipseVector();
 
   /*
-  * @brief Applies k-means clustering (k=2) and fills cluster vectors with samples.
-  * @param parent Parent ellipse to be split.
-  * @param childOne Cluster one
-  * @param childTwo Cluster two
-  */
+   * @brief Applies k-means clustering (k=2) and fills cluster vectors with samples.
+   * @param parent Parent ellipse to be split.
+   * @param childOne Cluster one
+   * @param childTwo Cluster two
+   */
   bool kmeansClustering(const ellipse_t &parent, size_t maxIter, ellipse_t &childOne, ellipse_t &childTwo) const;
 
   /*
-  * @brief Udates the mean vector of ellipse argument.
-  * @param ellipse Ellipse to be updated.
-  */
+   * @brief Udates the mean vector of ellipse argument.
+   * @param ellipse Ellipse to be updated.
+   */
   void updateEllipseMean(ellipse_t &ellipse) const;
 
   /*
-  * @brief Udates the covariance matrix of input ellipse.
-  * @param ellipse Ellipse to be updated.
-  */
+   * @brief Udates the covariance matrix of input ellipse.
+   * @param ellipse Ellipse to be updated.
+   */
   bool updateEllipseCov(ellipse_t &ellipse) const;
 
   /*
-  * @brief Updates volume and the axes of the ellipse.
-  * @param ellipse Ellipse to be updated.
-  */
+   * @brief Updates volume and the axes of the ellipse.
+   * @param ellipse Ellipse to be updated.
+   */
   bool updateEllipseVolume(ellipse_t &ellipse) const;
 
   /*
-  * @brief Calculates Mahalanobis metric of sample and ellipse.
-  * @param sample Sample.
-  * @param ellipse Ellipse.
-  */
+   * @brief Calculates Mahalanobis metric of sample and ellipse.
+   * @param sample Sample.
+   * @param ellipse Ellipse.
+   */
   double mahalanobisDistance(const std::vector<double> &sample, const ellipse_t &ellipse) const;
 
   /*
-  * @brief Calculate effective number of samples.
-  * @return the number of effective samples
-  */
+   * @brief Calculate effective number of samples.
+   * @return the number of effective samples
+   */
   void updateEffectiveSamples();
 
   /*
-  * @brief Checks if sample is inside d dimensional unit cube.
-  * @param sample Sample to be checked.
-  */
+   * @brief Checks if sample is inside d dimensional unit cube.
+   * @param sample Sample to be checked.
+   */
   bool insideUnitCube(const std::vector<double> &sample) const;
 
   public:
   /**
-  * @brief Configures Sampler.
-  */
+   * @brief Configures Sampler.
+   */
   void setInitialConfiguration() override;
 
   /**
-  * @brief Main solver loop.
-  */
+   * @brief Main solver loop.
+   */
   void runGeneration() override;
 
   /**
-  * @brief Console Output before generation runs.
-  */
+   * @brief Console Output before generation runs.
+   */
   void printGenerationBefore() override;
 
   /**
-  * @brief Console output after generation.
-  */
+   * @brief Console output after generation.
+   */
   void printGenerationAfter() override;
 
   /**
-  * @brief Final console output at termination.
-  */
+   * @brief Final console output at termination.
+   */
   void finalize() override;
 };
 

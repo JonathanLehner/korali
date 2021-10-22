@@ -47,6 +47,7 @@ e = korali.Experiment()
 e["Problem"]["Type"] = "Reinforcement Learning / Discrete"
 e["Problem"]["Possible Actions"] = [ [ -10.0 ], [  10.0 ] ]
 e["Problem"]["Environment Function"] = env
+e["Problem"]["Environment Count"] = 3
 e["Problem"]["Actions Between Policy Updates"] = 5
 
 e["Variables"][0]["Name"] = "Cart Position"
@@ -121,14 +122,3 @@ e["Console Output"]["Verbosity"] = "Detailed"
 ### Running Experiment
 
 k.run(e)
-
-### Now we run a few test samples and check their reward
-
-e["Solver"]["Mode"] = "Testing"
-e["Solver"]["Testing"]["Sample Ids"] = list(range(5))
-
-k.run(e)
-
-averageTestReward = np.average(e["Solver"]["Testing"]["Reward"])
-print("Average Reward: " + str(averageTestReward))
-

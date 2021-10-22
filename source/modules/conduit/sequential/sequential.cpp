@@ -18,8 +18,8 @@ namespace conduit
 ;
 
 /**
-* @brief Temporary storage to hold the pointer to the current conduit
-*/
+ * @brief Temporary storage to hold the pointer to the current conduit
+ */
 Sequential *_currentConduit;
 
 void _workerWrapper()

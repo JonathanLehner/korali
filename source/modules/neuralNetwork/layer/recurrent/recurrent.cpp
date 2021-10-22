@@ -216,8 +216,8 @@ std::vector<float> Recurrent::generateInitialHyperparameters()
 void Recurrent::createBackwardPipeline()
 {
   /*********************************************************************************
-  *  Initializing memory objects and primitives for BACKWARD propagation
-  *********************************************************************************/
+   *  Initializing memory objects and primitives for BACKWARD propagation
+   *********************************************************************************/
 
   // Calling base layer function
   Layer::createBackwardPipeline();

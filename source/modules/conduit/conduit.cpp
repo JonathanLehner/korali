@@ -11,8 +11,8 @@ namespace korali
 ;
 
 /**
-* @brief Temporary storage to hold the pointer to the current sample to process
-*/
+ * @brief Temporary storage to hold the pointer to the current sample to process
+ */
 Sample *_currentSample;
 void Conduit::coroutineWrapper()
 {

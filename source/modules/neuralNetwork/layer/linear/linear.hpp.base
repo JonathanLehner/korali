@@ -8,78 +8,78 @@ class __className__ : public __parentClassName__
 {
   public:
   /********************************************************
- * Engine specific members
- *******************************************************/
+   * Engine specific members
+   *******************************************************/
 
   /**
-* @brief Contains the values of the weights
-*/
+   * @brief Contains the values of the weights
+   */
   float *_weightValues;
 
   /**
-* @brief Contains the gradients of the weights
-*/
+   * @brief Contains the gradients of the weights
+   */
   float *_weightGradient;
 
   /**
-* @brief Contains the values of the bias
-*/
+   * @brief Contains the values of the bias
+   */
   float *_biasValues;
 
   /**
-* @brief Contains the gradients of the bias
-*/
+   * @brief Contains the gradients of the bias
+   */
   float *_biasGradient;
 
 #ifdef _KORALI_USE_ONEDNN
   /**
- * @brief oneDNN Memory object descriptor to contain the weights of inner product with incoming channels
- */
+   * @brief oneDNN Memory object descriptor to contain the weights of inner product with incoming channels
+   */
   dnnl::memory _weightsMem;
 
   /**
- * @brief oneDNN Memory object descriptor to contain the weights of inner product with incoming channels
- */
+   * @brief oneDNN Memory object descriptor to contain the weights of inner product with incoming channels
+   */
   dnnl::memory _weightsReorderMem;
 
   /**
- * @brief oneDNN Memory object descriptor to contain the bias to add to incoming channels
- */
+   * @brief oneDNN Memory object descriptor to contain the bias to add to incoming channels
+   */
   dnnl::memory _biasMem;
 
   /**
- * @brief oneDNN Memory object descriptor to contain the gradient of the weights
- */
+   * @brief oneDNN Memory object descriptor to contain the gradient of the weights
+   */
   dnnl::memory _weightsGradientMem;
 
   /**
- * @brief oneDNN Memory object descriptor to contain the gradient of the biases
- */
+   * @brief oneDNN Memory object descriptor to contain the gradient of the biases
+   */
   dnnl::memory _biasGradientMem;
 
   /**
- * @brief oneDNN primitive attributes that describe the full forward propagation primitive
- */
+   * @brief oneDNN primitive attributes that describe the full forward propagation primitive
+   */
   dnnl::inner_product_forward::primitive_desc _forwardInnerProductPrimitiveDesc;
 
   /**
- * @brief oneDNN primitive to run the inner product + bias addition operation
- */
+   * @brief oneDNN primitive to run the inner product + bias addition operation
+   */
   dnnl::primitive _forwardInnerProductPrimitive;
 
   /**
- * @brief oneDNN Arguments for the backward propagation of the gradient wrt Data
- */
+   * @brief oneDNN Arguments for the backward propagation of the gradient wrt Data
+   */
   std::unordered_map<int, dnnl::memory> _backwardDataArgs;
 
   /**
- * @brief oneDNN primitive for the backward propagation of the gradient wrt Data
- */
+   * @brief oneDNN primitive for the backward propagation of the gradient wrt Data
+   */
   dnnl::primitive _backwardDataPrimitive;
 
   /**
- * @brief oneDNN primitive for the backward propagation of the gradient wrt Weights and Biases
- */
+   * @brief oneDNN primitive for the backward propagation of the gradient wrt Weights and Biases
+   */
   dnnl::primitive _backwardWeightsPrimitive;
 
 #endif
@@ -87,48 +87,48 @@ class __className__ : public __parentClassName__
 #ifdef _KORALI_USE_CUDNN
 
   /**
- * @brief cuDNN Descriptor for the filter weights
- */
+   * @brief cuDNN Descriptor for the filter weights
+   */
   cudnnFilterDescriptor_t _weightsFilterDesc;
 
   /**
- * @brief cuDNN Device memory pointer for the filter weights
- */
+   * @brief cuDNN Device memory pointer for the filter weights
+   */
   void *_weightsFilter;
 
   /**
- * @brief cuDNN Device memory pointer for the filter weights gradients
- */
+   * @brief cuDNN Device memory pointer for the filter weights gradients
+   */
   void *_weightsGradientFilter;
 
   /**
- * @brief cuDNN Descriptor for the bias memory
- */
+   * @brief cuDNN Descriptor for the bias memory
+   */
   cudnnTensorDescriptor_t _biasTensorDesc;
 
   /**
- * @brief cuDNN Device memory pointer for the bias tensor
- */
+   * @brief cuDNN Device memory pointer for the bias tensor
+   */
   void *_biasTensor;
 
   /**
- * @brief cuDNN Device memory pointer for the bias gradients
- */
+   * @brief cuDNN Device memory pointer for the bias gradients
+   */
   void *_biasGradientTensor;
 
   /**
- * @brief cuDNN Descriptor for the convolution operation
- */
+   * @brief cuDNN Descriptor for the convolution operation
+   */
   cudnnConvolutionDescriptor_t _convolutionDesc;
 
   /**
- * @brief cuDNN Placeholder for the convolution workspace size (bytes)
- */
+   * @brief cuDNN Placeholder for the convolution workspace size (bytes)
+   */
   size_t _convolutionWorkspaceSize;
 
   /**
- * @brief cuDNN Device memory pointer for the convolution workspace
- */
+   * @brief cuDNN Device memory pointer for the convolution workspace
+   */
   std::vector<void *> _convolutionWorkspace;
 
 #endif

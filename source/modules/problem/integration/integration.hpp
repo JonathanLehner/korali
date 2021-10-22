@@ -68,7 +68,7 @@ class Integration : public Problem
   /**
    * @brief Produces an evaluation of the model, storing it in and stores it in sample["Evaluation"].
    * @param sample A Korali Sample
-  */
+   */
   void execute(korali::Sample &sample);
 };
 

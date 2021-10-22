@@ -2097,21 +2097,6 @@ namespace
 
   problemJs = baseProbJs;
   experimentJs = baseExpJs;
-  problemJs.erase("Environment Count");
-  ASSERT_ANY_THROW(pObj->setConfiguration(problemJs));
-
-  problemJs = baseProbJs;
-  experimentJs = baseExpJs;
-  problemJs["Environment Count"] = "Not a Number";
-  ASSERT_ANY_THROW(pObj->setConfiguration(problemJs));
-
-  problemJs = baseProbJs;
-  experimentJs = baseExpJs;
-  problemJs["Environment Count"] = 1;
-  ASSERT_NO_THROW(pObj->setConfiguration(problemJs));
-
-  problemJs = baseProbJs;
-  experimentJs = baseExpJs;
   problemJs.erase("Environment Function");
   ASSERT_ANY_THROW(pObj->setConfiguration(problemJs));
 

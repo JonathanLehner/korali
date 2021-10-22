@@ -110,8 +110,8 @@ void Layer::createBackwardPipeline()
     KORALI_LOG_ERROR("Requesting layer's backward pipeline creation but NN was configured for inference only.\n");
 
   /*********************************************************************************
-  *  Initializing memory objects and primitives for BACKWARD propagation
-  *********************************************************************************/
+   *  Initializing memory objects and primitives for BACKWARD propagation
+   *********************************************************************************/
 
   size_t N = _batchSize;
   size_t OC = _outputChannels;

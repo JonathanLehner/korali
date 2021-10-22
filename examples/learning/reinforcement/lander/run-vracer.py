@@ -63,7 +63,7 @@ e["Solver"]["Termination Criteria"]["Max Generations"] = 50
 ### Setting file output configuration
 
 e["Console Output"]["Verbosity"] = "Detailed"
-e["File Output"]["Enabled"] = False
+e["File Output"]["Enabled"] = True
  
 ### Running Training Experiment
 

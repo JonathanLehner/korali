@@ -59,18 +59,18 @@ class Executor : public Solver
   
 
   /**
-  * @brief Generate a sample and evaluate it.
-  */
+   * @brief Generate a sample and evaluate it.
+   */
   void runGeneration() override;
 
   /**
-  * @brief Console Output before generation runs.
-  */
+   * @brief Console Output before generation runs.
+   */
   void printGenerationBefore() override;
 
   /**
-  * @brief Console output after generation.
-  */
+   * @brief Console output after generation.
+   */
   void printGenerationAfter() override;
 };
 

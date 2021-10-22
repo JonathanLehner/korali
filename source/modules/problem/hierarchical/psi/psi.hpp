@@ -30,49 +30,49 @@ class Psi : public Hierarchical
 {
   private:
   /**
-  * @brief Stores the pre-computed positions (pointers) of the conditional priors to evaluate for performance
-  */
+   * @brief Stores the pre-computed positions (pointers) of the conditional priors to evaluate for performance
+   */
   struct conditionalPriorInfo
   {
     /**
-    * @brief Stores the position of the conditional prior
-    */
+     * @brief Stores the position of the conditional prior
+     */
     std::vector<size_t> _samplePositions;
 
     /**
-   * @brief Stores the pointer of the conditional prior
-   */
+     * @brief Stores the pointer of the conditional prior
+     */
     std::vector<double *> _samplePointers;
   };
 
   /**
-  * @brief Stores the number of subproblems
-  */
+   * @brief Stores the number of subproblems
+   */
   size_t _subProblemsCount;
 
   /**
- * @brief Stores the number of variables in the subproblems (all must be the same)
- */
+   * @brief Stores the number of variables in the subproblems (all must be the same)
+   */
   size_t _subProblemsVariablesCount;
 
   /**
-  * @brief Stores the sample coordinates of all the subproblems
-  */
+   * @brief Stores the sample coordinates of all the subproblems
+   */
   std::vector<std::vector<std::vector<double>>> _subProblemsSampleCoordinates;
 
   /**
-  * @brief Stores the sample logLikelihoods of all the subproblems
-  */
+   * @brief Stores the sample logLikelihoods of all the subproblems
+   */
   std::vector<std::vector<double>> _subProblemsSampleLogLikelihoods;
 
   /**
-  * @brief Stores the sample logPriors of all the subproblems
-  */
+   * @brief Stores the sample logPriors of all the subproblems
+   */
   std::vector<std::vector<double>> _subProblemsSampleLogPriors;
 
   /**
-  * @brief Stores the precomputed conditional prior information, for performance
-  */
+   * @brief Stores the precomputed conditional prior information, for performance
+   */
   std::vector<conditionalPriorInfo> _conditionalPriorInfos;
 
   public: 
@@ -108,14 +108,14 @@ class Psi : public Hierarchical
   
 
   /**
-  * @brief Stores the indexes of conditional priors to Experiment variables
-  */
+   * @brief Stores the indexes of conditional priors to Experiment variables
+   */
   std::vector<size_t> _conditionalPriorIndexes;
 
   /**
-  * @brief Updates the distribution parameters for the conditional priors, given variable values in the sample.
-  * @param sample A Korali Sample
-  */
+   * @brief Updates the distribution parameters for the conditional priors, given variable values in the sample.
+   * @param sample A Korali Sample
+   */
   void updateConditionalPriors(korali::Sample &sample);
   void evaluateLogLikelihood(korali::Sample &sample) override;
   void initialize() override;

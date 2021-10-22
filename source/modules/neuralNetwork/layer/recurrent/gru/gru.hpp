@@ -56,23 +56,23 @@ class GRU : public Recurrent
 #ifdef _KORALI_USE_ONEDNN
 
   /**
-  * @brief oneDNN primitive attributes that describe the forward GRU primitive
-  */
+   * @brief oneDNN primitive attributes that describe the forward GRU primitive
+   */
   dnnl::gru_forward::primitive_desc _forwardGRUPrimitiveDesc;
 
   /**
-  * @brief oneDNN primitive to run the forward GRU operation
-  */
+   * @brief oneDNN primitive to run the forward GRU operation
+   */
   dnnl::primitive _forwardGRUPrimitive;
 
   /**
-  * @brief oneDNN primitive attributes that describe the backward GRU primitive
-  */
+   * @brief oneDNN primitive attributes that describe the backward GRU primitive
+   */
   dnnl::gru_backward::primitive_desc _backwardGRUPrimitiveDesc;
 
   /**
-  * @brief oneDNN primitive to run the backward GRU operation
-  */
+   * @brief oneDNN primitive to run the backward GRU operation
+   */
   dnnl::primitive _backwardGRUPrimitive;
 
 #endif

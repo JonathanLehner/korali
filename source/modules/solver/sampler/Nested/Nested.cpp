@@ -516,7 +516,9 @@ void Nested::sortLiveSamplesAscending()
 
   // Sort sample rank ascending based on likelihood and prior weight
   std::sort(_liveSamplesRank.begin(), _liveSamplesRank.end(), [this](const size_t &idx1, const size_t &idx2) -> bool
-            { return this->_liveLogPriorWeights[idx1] + this->_liveLogLikelihoods[idx1] < this->_liveLogPriorWeights[idx2] + this->_liveLogLikelihoods[idx2]; });
+            {
+              return this->_liveLogPriorWeights[idx1] + this->_liveLogLikelihoods[idx1] < this->_liveLogPriorWeights[idx2] + this->_liveLogLikelihoods[idx2];
+            });
 }
 
 void Nested::updateDeadSamples(size_t sampleIdx)
@@ -832,8 +834,8 @@ bool Nested::updateEllipseVolume(ellipse_t &ellipse) const
   gsl_matrix_view axes = gsl_matrix_view_array(ellipse.axes.data(), _variableCount, _variableCount);
 
   /* On output the diagonal and lower triangular part of the
-     * input matrix A contain the matrix L, while the upper triangular part
-     * contains the original matrix. */
+   * input matrix A contain the matrix L, while the upper triangular part
+   * contains the original matrix. */
 
   gsl_matrix_memcpy(&axes.matrix, &cov.matrix);
 

@@ -52,11 +52,11 @@ class Multinomial : public Specific
   
 
   /**
-  * @brief This function computes a random sample from the multinomial distribution.
-  * @param p Underlying probability distributions
-  * @param n Random sample to draw
-  * @param N Number of trials
-  */
+   * @brief This function computes a random sample from the multinomial distribution.
+   * @param p Underlying probability distributions
+   * @param n Random sample to draw
+   * @param N Number of trials
+   */
   void getSelections(std::vector<double> &p, std::vector<unsigned int> &n, int N);
 };
 

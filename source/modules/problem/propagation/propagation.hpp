@@ -69,7 +69,7 @@ class Propagation : public Problem
   /**
    * @brief Produces an evaluation of the model, storing it in a file.
    * @param sample A Korali Sample
-  */
+   */
   void execute(korali::Sample &sample);
 };
 

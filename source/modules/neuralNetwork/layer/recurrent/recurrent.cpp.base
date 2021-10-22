@@ -210,8 +210,8 @@ std::vector<float> __className__::generateInitialHyperparameters()
 void __className__::createBackwardPipeline()
 {
   /*********************************************************************************
-  *  Initializing memory objects and primitives for BACKWARD propagation
-  *********************************************************************************/
+   *  Initializing memory objects and primitives for BACKWARD propagation
+   *********************************************************************************/
 
   // Calling base layer function
   Layer::createBackwardPipeline();

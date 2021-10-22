@@ -76,20 +76,20 @@ class Optimization : public Problem
   void initialize() override;
 
   /**
-  * @brief Evaluates a single objective, given a set of parameters.
-  * @param sample A sample to process
-  */
+   * @brief Evaluates a single objective, given a set of parameters.
+   * @param sample A sample to process
+   */
   void evaluate(korali::Sample &sample);
 
   /**
-  * @brief Evaluates multiple objectives, given a set of parameters.
-  * @param sample A sample to process
-  */
+   * @brief Evaluates multiple objectives, given a set of parameters.
+   * @param sample A sample to process
+   */
   void evaluateMultiple(korali::Sample &sample);
 
   /**
-    * @brief Evaluates whether at least one of constraints have been met.
-    * @param sample A Korali Sample
+   * @brief Evaluates whether at least one of constraints have been met.
+   * @param sample A Korali Sample
    */
   void evaluateConstraints(korali::Sample &sample);
 

@@ -47,10 +47,6 @@ class Continuous : public Agent
   */
    std::vector<float> _actionScales;
   /**
-  * @brief [Internal Use] Stores the number of parameters that determine the probability distribution for the current state sequence.
-  */
-   size_t _policyParameterCount;
-  /**
   * @brief [Internal Use] Stores the transformations required for each parameter.
   */
    std::vector<std::string> _policyParameterTransformationMasks;
@@ -113,17 +109,17 @@ class Continuous : public Agent
   std::vector<float> calculateKLDivergenceGradient(const policy_t &oldPolicy, const policy_t &curPolicy);
 
   /**
-  * @brief Function to generate randomized actions from neural network output.
-  * @param curPolicy The current policy for the given state
-  * @return An action vector
-  */
+   * @brief Function to generate randomized actions from neural network output.
+   * @param curPolicy The current policy for the given state
+   * @return An action vector
+   */
   std::vector<float> generateTrainingAction(policy_t &curPolicy);
 
   /**
-  * @brief Function to generate deterministic actions from neural network output required for policy evaluation, respectively testing.
-  * @param curPolicy The current policy for the given state
-  * @return An action vector
-  */
+   * @brief Function to generate deterministic actions from neural network output required for policy evaluation, respectively testing.
+   * @param curPolicy The current policy for the given state
+   * @return An action vector
+   */
   std::vector<float> generateTestingAction(const policy_t &curPolicy);
 
   float calculateImportanceWeight(const std::vector<float> &action, const policy_t &curPolicy, const policy_t &oldPolicy) override;

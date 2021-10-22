@@ -29,7 +29,7 @@ test('learning.reinforcement.cartpole.discrete.single', e,
     )
 
 e = find_program('run-dvracer.py', required: true)
-test('learning.reinforcement.cartpole.discrete.single', e,
+test('learning.reinforcement.cartpole.discrete.multiple', e,
       args: [ '--concurrentEnvironments', '2'],
       timeout : 3600,
       suite: 'regression',

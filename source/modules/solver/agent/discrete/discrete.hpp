@@ -29,10 +29,6 @@ namespace agent
 class Discrete : public Agent
 {
   public: 
-  /**
-  * @brief Specifies the probability of taking a random action for the epsilon-greedy strategy.
-  */
-   float _randomActionProbability;
   
  
   /**
@@ -62,28 +58,27 @@ class Discrete : public Agent
   
 
   /**
- * @brief Storage for the pointer to the (discrete) learning problem
- */
+   * @brief Storage for the pointer to the (discrete) learning problem
+   */
   problem::reinforcementLearning::Discrete *_problem;
 
   float calculateImportanceWeight(const std::vector<float> &action, const policy_t &curPolicy, const policy_t &oldPolicy) override;
 
   /**
    * @brief Calculates the gradient of importance weight wrt to NN output
-   * @param actionIdx Action from memory
-   * @param curPvalues todo
-   * @param oldPvalues todo
-   * @return gradient of importance weight wrt NN output
+   * @param curPolicy current policy object
+   * @param oldPolicy old policy object from RM
+   * @return gradient of importance weight wrt NN output (q_i's and inverse temperature)
    */
-  std::vector<float> calculateImportanceWeightGradient(const size_t actionIdx, const std::vector<float> &curPvalues, const std::vector<float> &oldPvalues);
+  std::vector<float> calculateImportanceWeightGradient(const policy_t &curPolicy, const policy_t &oldPolicy);
 
   /**
-   * @brief Calculates the gradient of KL(p_old, p_cur) wrt to the parameter of the 2nd (current) distribution.
-   * @param oldPvalues todo
-   * @param curPvalues todo
-   * @return gradient of KL wrt curParamsOne and curParamsTwo
+   * @brief Calculates the gradient of KL(p_old, p_cur) wrt to the NN output.
+   * @param oldPolicy current policy object
+   * @param curPolicy old policy object from RM
+   * @return gradient of KL wrt curent distribution parameter (q_i's and inverse temperature)
    */
-  std::vector<float> calculateKLDivergenceGradient(const std::vector<float> &oldPvalues, const std::vector<float> &curPvalues);
+  std::vector<float> calculateKLDivergenceGradient(const policy_t &oldPolicy, const policy_t &curPolicy);
 
   void getAction(korali::Sample &sample) override;
   virtual void initializeAgent() override;

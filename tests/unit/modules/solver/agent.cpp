@@ -63,6 +63,8 @@ namespace
   e["Variables"][1]["Lower Bound"] = 0.00;
   e["Variables"][1]["Upper Bound"] = 1.00;
 
+  e["Solver"]["Type"] = "Agent / Continuous / VRACER";
+
   Variable vState;
   vState._name = "State0";
   vState._type = "State";
@@ -78,11 +80,21 @@ namespace
   e._variables.push_back(&vAction);
 
   ASSERT_NO_THROW(pC = dynamic_cast<reinforcementLearning::Continuous *>(Module::getModule(problemRefJs, &e)));
-  pC->_environmentCount = 1;
+
+  // Defaults should be applied without a problem
+  ASSERT_NO_THROW(pC->applyModuleDefaults(problemRefJs));
+
+  // Covering variable functions (no effect)
+  ASSERT_NO_THROW(pC->applyVariableDefaults());
+
+  // Setting up problem correctly
+  ASSERT_NO_THROW(pC->setConfiguration(problemRefJs));
+
+  // Intitialize problem
   e._problem = pC;
   ASSERT_NO_THROW(pC->initialize());
 
-  // Using a neural network solver (deep learning) for inference
+  // Using a agent solver
 
   agentJs["Type"] = "Agent / Continuous / VRACER";
   agentJs["Mode"] = "Training";
@@ -116,7 +128,7 @@ namespace
   auto baseOptJs = agentJs;
   auto baseExpJs = experimentJs;
 
-//   // Setting up optimizer correctly
+  // Setting up optimizer correctly
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
   ASSERT_NO_THROW(a->setConfiguration(agentJs));
@@ -150,17 +162,18 @@ namespace
 
   // Testing Process Episode corner cases
   knlohmann::json episode;
-  episode["Experiences"][0]["Environment Id"] = 0;
+  episode["Environment Id"] = 0;
   episode["Experiences"][0]["State"] = std::vector<float>({0.0f});
   episode["Experiences"][0]["Action"] = std::vector<float>({0.0f});
   episode["Experiences"][0]["Reward"] = 1.0f;
   episode["Experiences"][0]["Termination"] = "Terminal";
   episode["Experiences"][0]["Policy"]["State Value"] = 1.0;
-  ASSERT_NO_THROW(a->processEpisode(0, episode));
+  a->processEpisode(episode);
+  // ASSERT_NO_THROW(a->processEpisode(episode));
 
   // No state value provided error
   episode["Experiences"][0]["Policy"].erase("State Value");
-  ASSERT_ANY_THROW(a->processEpisode(0, episode));
+  ASSERT_ANY_THROW(a->processEpisode(episode));
   episode["Experiences"][0]["Policy"]["State Value"] = 1.0;
 
   // Reward adjusted due to out of bounds action
@@ -169,18 +182,18 @@ namespace
   episode["Experiences"][0]["Reward"] = 1.0f;
   episode["Experiences"][0]["Action"] = std::vector<float>({-1.0f});
   a->_rewardVector.clear();
-  ASSERT_NO_THROW(a->processEpisode(0, episode));
+  ASSERT_NO_THROW(a->processEpisode(episode));
   ASSERT_EQ(a->_rewardVector[0], 0.5f);
 
   // Correct handling of truncated state
   episode["Experiences"][0]["Termination"] = "Truncated";
   episode["Experiences"][0]["Truncated State"] = std::vector<float>({0.0f});
-  ASSERT_NO_THROW(a->processEpisode(0, episode));
+  ASSERT_NO_THROW(a->processEpisode(episode));
 
   // Correct handling of truncated state
   episode["Experiences"][0]["Termination"] = "Truncated";
   episode["Experiences"][0]["Truncated State"] = std::vector<float>({std::numeric_limits<float>::infinity()});
-  ASSERT_ANY_THROW(a->processEpisode(0, episode));
+  ASSERT_ANY_THROW(a->processEpisode(episode));
   episode["Experiences"][0]["Truncated State"] = std::vector<float>({0.0f});
 
   // Check truncated state sequence for sequences > 1
@@ -206,7 +219,7 @@ namespace
   episode["Experiences"][2]["Policy"]["State Value"] = 1.0;
   episode["Experiences"][2]["Truncated State"] = std::vector<float>({0.0f});
 
-  ASSERT_NO_THROW(a->processEpisode(0, episode));
+  ASSERT_NO_THROW(a->processEpisode(episode));
   a->_timeSequenceLength = 2;
   ASSERT_NO_THROW(a->getTruncatedStateSequence(a->_terminationVector.size()-1));
 
@@ -571,6 +584,21 @@ namespace
   agentJs = baseOptJs;
   experimentJs = baseExpJs;
   agentJs["Learning Rate"] = 1.0;
+  ASSERT_NO_THROW(a->setConfiguration(agentJs));
+ 
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs.erase("Importance Weight Truncation Level");
+  ASSERT_ANY_THROW(a->setConfiguration(agentJs));
+
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs["Importance Weight Truncation Level"] = "Not a Number";
+  ASSERT_ANY_THROW(a->setConfiguration(agentJs));
+
+  agentJs = baseOptJs;
+  experimentJs = baseExpJs;
+  agentJs["Importance Weight Truncation Level"] = 1.0;
   ASSERT_NO_THROW(a->setConfiguration(agentJs));
 
   agentJs = baseOptJs;
@@ -1028,7 +1056,6 @@ namespace
    e._variables.push_back(&vAction);
 
    ASSERT_NO_THROW(pC = dynamic_cast<reinforcementLearning::Continuous *>(Module::getModule(problemRefJs, &e)));
-   pC->_environmentCount = 1;
    e._problem = pC;
    ASSERT_NO_THROW(pC->initialize());
 
@@ -1294,7 +1321,6 @@ namespace
    e._variables.push_back(&vAction);
 
    ASSERT_NO_THROW(pC = dynamic_cast<reinforcementLearning::Continuous *>(Module::getModule(problemRefJs, &e)));
-   pC->_environmentCount = 1;
    e._problem = pC;
    ASSERT_NO_THROW(pC->initialize());
 
@@ -1443,7 +1469,6 @@ namespace
 
    ASSERT_NO_THROW(pD = dynamic_cast<reinforcementLearning::Discrete *>(Module::getModule(problemRefJs, &e)));
    e._problem = pD;
-   pD->_environmentCount = 1;
    pD->_possibleActions = std::vector<std::vector<float>>({ { -10.0 }, { 10.0 } });
    pD->initialize();
    ASSERT_NO_THROW(pD->initialize());
@@ -1456,6 +1481,7 @@ namespace
    agentJs["Experiences Between Policy Updates"] = 1;
    agentJs["Discount Factor"] = 0.99;
    agentJs["Learning Rate"] = 0.0001;
+   agentJs["Importance Weight Truncation Level"] = 0.0001;
    agentJs["Mini Batch"]["Size"] = 32;
    agentJs["Experience Replay"]["Start Size"] = 1000;
    agentJs["Experience Replay"]["Maximum Size"] = 10000;
@@ -1485,34 +1511,18 @@ namespace
    // Testing distribution corner cases
    policy_t curPolicy;
    policy_t prevPolicy;
-   curPolicy.distributionParameters = std::vector<float>({0.2, 0.8}); // Probability distribution of possible actions
+   curPolicy.distributionParameters = std::vector<float>({0.2, 0.8, 1.0}); // Q values andbeta
+   curPolicy.actionProbabilities = std::vector<float>({0.2, 0.8}); // Probability distribution of possible actions
    curPolicy.actionIndex = 0;
-   prevPolicy.distributionParameters = std::vector<float>({0.5, 0.5}); // Probability distribution of possible actions
+   prevPolicy.distributionParameters = std::vector<float>({0.5, 0.5, 1.0}); // Q values andbeta
+   prevPolicy.actionProbabilities = std::vector<float>({0.5, 0.5}); // Probability distribution of possible actions
    prevPolicy.actionIndex = 0;
-   size_t testActionIdx = 0;
    auto testAction = std::vector<float>({-10.0f});
 
    ASSERT_NO_THROW(a->agent::Discrete::initializeAgent());
    ASSERT_NO_THROW(a->calculateImportanceWeight(testAction, curPolicy, prevPolicy));
-   ASSERT_NO_THROW(a->calculateImportanceWeightGradient(testActionIdx, curPolicy.distributionParameters, prevPolicy.distributionParameters));
-   ASSERT_NO_THROW(a->calculateKLDivergenceGradient(curPolicy.distributionParameters, prevPolicy.distributionParameters));
-
-   // Testing mandatory parameters
-
-   agentJs = baseOptJs;
-   experimentJs = baseExpJs;
-   agentJs.erase("Random Action Probability");
-   ASSERT_ANY_THROW(a->setConfiguration(agentJs));
-
-   agentJs = baseOptJs;
-   experimentJs = baseExpJs;
-   agentJs["Random Action Probability"] = "Not a Number";
-   ASSERT_ANY_THROW(a->setConfiguration(agentJs));
-
-   agentJs = baseOptJs;
-   experimentJs = baseExpJs;
-   agentJs["Random Action Probability"] = 1.0f;
-   ASSERT_NO_THROW(a->setConfiguration(agentJs));
+   ASSERT_NO_THROW(a->calculateImportanceWeightGradient(curPolicy, prevPolicy));
+   ASSERT_NO_THROW(a->calculateKLDivergenceGradient(curPolicy, prevPolicy));
   }
 
  TEST(a, dVRACER)
@@ -1553,7 +1563,6 @@ namespace
 
     ASSERT_NO_THROW(pD = dynamic_cast<reinforcementLearning::Discrete *>(Module::getModule(problemRefJs, &e)));
     e._problem = pD;
-    pD->_environmentCount = 1;
     pD->_possibleActions = std::vector<std::vector<float>>({ { -10.0 }, { 10.0 } });
     ASSERT_NO_THROW(pD->initialize());
 

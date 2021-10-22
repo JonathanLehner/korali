@@ -184,10 +184,6 @@ class CMAES : public Optimizer
   */
    double _previousBestValue;
   /**
-  * @brief [Internal Use] Index of the best sample in current generation.
-  */
-   size_t _bestSampleIndex;
-  /**
   * @brief [Internal Use] Best ever model evaluation as of previous generation.
   */
    double _previousBestEverValue;
@@ -420,42 +416,42 @@ class CMAES : public Optimizer
   
 
   /**
-  * @brief Prepares generation for the next set of evaluations
- */
+   * @brief Prepares generation for the next set of evaluations
+   */
   void prepareGeneration();
 
   /**
-  * @brief Evaluates a single sample
-  * @param sampleIdx Index of the sample to evaluate
-  * @param randomNumbers Random numbers to generate sample
- */
+   * @brief Evaluates a single sample
+   * @param sampleIdx Index of the sample to evaluate
+   * @param randomNumbers Random numbers to generate sample
+   */
   void sampleSingle(size_t sampleIdx, const std::vector<double> &randomNumbers);
 
   /**
    * @brief Adapts the covariance matrix.
    * @param hsig Sign
-  */
+   */
   void adaptC(int hsig);
 
   /**
-    * @brief Updates scaling factor of covariance matrix.
- */
+   * @brief Updates scaling factor of covariance matrix.
+   */
   void updateSigma(); /* update Sigma */
 
   /**
- * @brief Updates mean and covariance of Gaussian proposal distribution.
- */
+   * @brief Updates mean and covariance of Gaussian proposal distribution.
+   */
   void updateDistribution();
 
   /**
-    * @brief Updates the system of eigenvalues and eigenvectors
-    * @param M Input matrix
- */
+   * @brief Updates the system of eigenvalues and eigenvectors
+   * @param M Input matrix
+   */
   void updateEigensystem(const std::vector<double> &M);
 
   /**
-  * @brief Method that checks potential numerical issues and does correction. Not yet implemented.
- */
+   * @brief Method that checks potential numerical issues and does correction. Not yet implemented.
+   */
   void numericalErrorTreatment();
 
   /**
@@ -464,87 +460,87 @@ class CMAES : public Optimizer
    * @param C Input matrix
    * @param diag Sorted eigenvalues
    * @param Q eingenvectors of C
- */
+   */
   void eigen(size_t N, const std::vector<double> &C, std::vector<double> &diag, std::vector<double> &Q) const;
 
   /**
-  * @brief Descending sort of vector elements, stores ordering in _sortingIndex.
-  * @param _sortingIndex Ordering of elements in vector
-  * @param vec Vector to sort
-  * @param N Number of current samples.
- */
+   * @brief Descending sort of vector elements, stores ordering in _sortingIndex.
+   * @param _sortingIndex Ordering of elements in vector
+   * @param vec Vector to sort
+   * @param N Number of current samples.
+   */
   void sort_index(const std::vector<double> &vec, std::vector<size_t> &_sortingIndex, size_t N) const;
 
   /**
-  * @brief Initializes the weights of the mu vector
-  * @param numsamples Length of mu vector
- */
+   * @brief Initializes the weights of the mu vector
+   * @param numsamples Length of mu vector
+   */
   void initMuWeights(size_t numsamples); /* init _muWeights and dependencies */
 
   /**
-  * @brief Initialize Covariance Matrix and Cholesky Decomposition
- */
+   * @brief Initialize Covariance Matrix and Cholesky Decomposition
+   */
   void initCovariance(); /* init sigma, C and B */
 
   /**
-  * @brief Check if mean of proposal distribution is inside of valid domain (does not violate constraints), if yes, re-initialize internal vars. Method for CCMA-ES.
- */
+   * @brief Check if mean of proposal distribution is inside of valid domain (does not violate constraints), if yes, re-initialize internal vars. Method for CCMA-ES.
+   */
   void checkMeanAndSetRegime();
 
   /**
- * @brief Update constraint evaluationsa. Method for CCMA-ES.
- */
+   * @brief Update constraint evaluationsa. Method for CCMA-ES.
+   */
   void updateConstraints();
 
   /**
- * @brief Update viability boundaries. Method for CCMA-ES.
- */
+   * @brief Update viability boundaries. Method for CCMA-ES.
+   */
   void updateViabilityBoundaries();
 
   /**
- * @brief Process samples that violate constraints. Method for CCMA-ES.
- */
+   * @brief Process samples that violate constraints. Method for CCMA-ES.
+   */
   void handleConstraints();
 
   /**
- * @brief Reevaluate constraint evaluations. Called in handleConstraints. Method for CCMA-ES.
- */
+   * @brief Reevaluate constraint evaluations. Called in handleConstraints. Method for CCMA-ES.
+   */
   void reEvaluateConstraints();
 
   /**
- * @brief Update mutation matrix for discrete variables. Method for discrete/integer optimization.
- */
+   * @brief Update mutation matrix for discrete variables. Method for discrete/integer optimization.
+   */
   void updateDiscreteMutationMatrix();
 
   /**
- * @brief Discretize variables to given granularity using arithmetic rounding.
- * @param sample Sample to discretize
- */
+   * @brief Discretize variables to given granularity using arithmetic rounding.
+   * @param sample Sample to discretize
+   */
   void discretize(std::vector<double> &sample);
 
   /**
- * @brief Configures CMA-ES.
- */
+   * @brief Configures CMA-ES.
+   */
   void setInitialConfiguration() override;
 
   /**
- * @brief Executes sampling & evaluation generation.
- */
+   * @brief Executes sampling & evaluation generation.
+   */
   void runGeneration() override;
 
   /**
- * @brief Console Output before generation runs.
- */
+   * @brief Console Output before generation runs.
+   */
   void printGenerationBefore() override;
 
   /**
- * @brief Console output after generation.
- */
+   * @brief Console output after generation.
+   */
   void printGenerationAfter() override;
 
   /**
- * @brief Final console output at termination.
- */
+   * @brief Final console output at termination.
+   */
   void finalize() override;
 };
 

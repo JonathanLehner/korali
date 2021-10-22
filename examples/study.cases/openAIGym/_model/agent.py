@@ -39,12 +39,6 @@ def initEnvironment(e, envName, moviePath = ''):
  # Generating state variable index list
  stateVariablesIndexes = range(stateVariableCount)
  
- # Handling Environment-Specific Configuration
- 
- if (envName == 'Ant-v2'):
-  stateVariableCount = 27
-  stateVariablesIndexes = range(stateVariableCount) 
- 
  # Defining State Variables
  
  for i in stateVariablesIndexes:
@@ -60,7 +54,7 @@ def initEnvironment(e, envName, moviePath = ''):
   e["Variables"][stateVariableCount + i]["Type"] = "Action"
   e["Variables"][stateVariableCount + i]["Lower Bound"] = float(env.action_space.low[i])
   e["Variables"][stateVariableCount + i]["Upper Bound"] = float(env.action_space.high[i])
-  e["Variables"][stateVariableCount + i]["Initial Exploration Noise"] = math.sqrt(0.2)
+  e["Variables"][stateVariableCount + i]["Initial Exploration Noise"] = 0.2
 
 def agent(s, env):
 

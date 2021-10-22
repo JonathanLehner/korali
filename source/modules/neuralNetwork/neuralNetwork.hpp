@@ -32,53 +32,53 @@ namespace korali
 ;
 
 /**
-* @brief Structure containing the information of a layer pipeline. There is one pipeline per threadCount x batchSize combination.
-*/
+ * @brief Structure containing the information of a layer pipeline. There is one pipeline per threadCount x batchSize combination.
+ */
 struct layerPipeline_t
 {
   /**
-  * @brief Internal container for the NN layer forward/backward pipelines.
-  */
+   * @brief Internal container for the NN layer forward/backward pipelines.
+   */
   std::vector<korali::neuralNetwork::Layer *> _layerVector;
 
   /**
-  * @brief Raw data for the NN input values. Format: TxNxIC (T: Time steps, N: Mini-batch size, IC: Input channels).
-  */
+   * @brief Raw data for the NN input values. Format: TxNxIC (T: Time steps, N: Mini-batch size, IC: Input channels).
+   */
   std::vector<float> _rawInputValues;
 
   /**
-  * @brief Raw data for the NN input gradients. Format: TxNxIC (T: Time steps, N: Mini-batch size, IC: Input channels).
-  */
+   * @brief Raw data for the NN input gradients. Format: TxNxIC (T: Time steps, N: Mini-batch size, IC: Input channels).
+   */
   std::vector<float> _rawInputGradients;
 
   /**
    * @brief Formatted data for the NN input gradients. Format: NxIC (N: Mini-batch size, IC: Input channels).
- */
+   */
   std::vector<std::vector<float>> _inputGradients;
 
   /**
-  * @brief Raw data for the NN output values. Format: NxOC (N: Mini-batch size, OC: Output channels).
-  */
+   * @brief Raw data for the NN output values. Format: NxOC (N: Mini-batch size, OC: Output channels).
+   */
   std::vector<float> _rawOutputValues;
 
   /**
-  * @brief Raw data for the NN output gradients. Format: NxOC (N: Mini-batch size, OC: Output channels).
-  */
+   * @brief Raw data for the NN output gradients. Format: NxOC (N: Mini-batch size, OC: Output channels).
+   */
   std::vector<float> _rawOutputGradients;
 
   /**
-  * @brief Formatted data for the NN output values. Format: NxOC (N: Mini-batch size, OC: Output channels).
-  */
+   * @brief Formatted data for the NN output values. Format: NxOC (N: Mini-batch size, OC: Output channels).
+   */
   std::vector<std::vector<float>> _outputValues;
 
   /**
-  * @brief F data for the NN hyperparameter gradients. Format: H (H: Hyperparameter count).
-  */
+   * @brief F data for the NN hyperparameter gradients. Format: H (H: Hyperparameter count).
+   */
   std::vector<float> _hyperparameterGradients;
 
   /**
-  * @brief Remembers the position of the last timestep provided as input
-  */
+   * @brief Remembers the position of the last timestep provided as input
+   */
   std::vector<size_t> _inputBatchLastStep;
 };
 
@@ -199,20 +199,20 @@ class NeuralNetwork : public Module
   /**
    * @brief Forward-propagates the input values through the network.
    * @param inputValues The input values.  Format: TxNxIC (T: Time steps, N: Mini-batch, IC: Input channels).
-  */
+   */
   void forward(const std::vector<std::vector<std::vector<float>>> &inputValues);
 
   /**
    * @brief Backward-propagates the gradients through the network.
    * @param outputGradients Output gradients. Format: NxOC (N: Mini-batch size, OC: Output channels).
-  */
+   */
   void backward(const std::vector<std::vector<float>> &outputGradients);
 
   /**
-  * @brief Returns the pipeline index corresponding to the batch size requested
-  * @param batchSize Size of the batch to request
-  * @return Pipeline Id correspoding to the batch size
-  */
+   * @brief Returns the pipeline index corresponding to the batch size requested
+   * @param batchSize Size of the batch to request
+   * @return Pipeline Id correspoding to the batch size
+   */
   size_t getBatchSizeIdx(const size_t batchSize);
 
   /**

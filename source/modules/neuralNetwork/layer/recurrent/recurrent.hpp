@@ -56,40 +56,40 @@ class Recurrent : public Layer
   
 
   /**
-  * @brief Indicates the number of recurrent gates (depends on the architecture)
-  */
+   * @brief Indicates the number of recurrent gates (depends on the architecture)
+   */
   size_t _gateCount;
 
 #ifdef _KORALI_USE_ONEDNN
 
   /**
- * @brief oneDNN Memory object descriptor to contain the hidden state of the recurrent layer -- vector, one per timestep
- */
+   * @brief oneDNN Memory object descriptor to contain the hidden state of the recurrent layer -- vector, one per timestep
+   */
   std::vector<dnnl::memory> _hiddenStateMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the gradients of the hidden state of the recurrent layer -- vector, one per timestep
-  */
+   * @brief oneDNN Memory object descriptor to contain the gradients of the hidden state of the recurrent layer -- vector, one per timestep
+   */
   std::vector<dnnl::memory> _hiddenStateGradientMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain a null source input hidden state
-  */
+   * @brief oneDNN Memory object descriptor to contain a null source input hidden state
+   */
   dnnl::memory _nullStateInputMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain a null source output hidden state
-  */
+   * @brief oneDNN Memory object descriptor to contain a null source output hidden state
+   */
   dnnl::memory _nullStateOutputMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the weights of to apply to the input
-  */
+   * @brief oneDNN Memory object descriptor to contain the weights of to apply to the input
+   */
   dnnl::memory _weightsLayerMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the gradients of the weights of to apply to the input
-  */
+   * @brief oneDNN Memory object descriptor to contain the gradients of the weights of to apply to the input
+   */
   dnnl::memory _weightsLayerGradientMem;
 
   /**
@@ -103,18 +103,18 @@ class Recurrent : public Layer
   dnnl::memory _weightsRecurrentGradientMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the bias to apply to the input
-  */
+   * @brief oneDNN Memory object descriptor to contain the bias to apply to the input
+   */
   dnnl::memory _biasMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the gradients of the bias to apply to the input
-  */
+   * @brief oneDNN Memory object descriptor to contain the gradients of the bias to apply to the input
+   */
   dnnl::memory _biasGradientMem;
 
   /**
-  * @brief oneDNN Memory object descriptor to contain the workspace
-  */
+   * @brief oneDNN Memory object descriptor to contain the workspace
+   */
   std::vector<dnnl::memory> _workspaceMem;
 
 #endif
@@ -127,13 +127,13 @@ class Recurrent : public Layer
   cudnnRNNMode_t _rnnMode;
 
   /**
-  * @brief cuDNN Descriptor for the hidden state tensor memory
-  */
+   * @brief cuDNN Descriptor for the hidden state tensor memory
+   */
   cudnnTensorDescriptor_t _hTensorDesc;
 
   /**
-  * @brief cuDNN Device memory pointers for the internal layer's hidden state input
-  */
+   * @brief cuDNN Device memory pointers for the internal layer's hidden state input
+   */
   std::vector<void *> _hStateTensor;
 
   /**
@@ -142,8 +142,8 @@ class Recurrent : public Layer
   std::vector<void *> _hGradientTensor;
 
   /**
-  * @brief cuDNN descriptor for the dropout operator
-  */
+   * @brief cuDNN descriptor for the dropout operator
+   */
   cudnnDropoutDescriptor_t _dropoutDesc;
 
   /**
@@ -152,28 +152,28 @@ class Recurrent : public Layer
   cudnnRNNDescriptor_t _rnnDesc;
 
   /**
-  * @brief cuDNN Device memory pointers for layer's weights
-  */
+   * @brief cuDNN Device memory pointers for layer's weights
+   */
   void *_weightsTensor;
 
   /**
-  * @brief cuDNN Device memory pointers for layer's weight gradients
-  */
+   * @brief cuDNN Device memory pointers for layer's weight gradients
+   */
   void *_weightsGradientTensor;
 
   /**
-  * @brief cuDNN Device RNN data descriptor for the input
-  */
+   * @brief cuDNN Device RNN data descriptor for the input
+   */
   cudnnRNNDataDescriptor_t _inputRNNDataDesc;
 
   /**
-  * @brief cuDNN Device RNN data descriptor for the output
-  */
+   * @brief cuDNN Device RNN data descriptor for the output
+   */
   cudnnRNNDataDescriptor_t _outputRNNDataDesc;
 
   /**
-  * @brief cuDNN Device memory pointer to of all gate weights
-  */
+   * @brief cuDNN Device memory pointer to of all gate weights
+   */
   std::vector<void *> _gateWeightTensors;
 
   /**
@@ -197,8 +197,8 @@ class Recurrent : public Layer
   size_t _reserveSpaceSize;
 
   /**
-  * @brief cuDNN Device memory pointers for workspace tensor
-  */
+   * @brief cuDNN Device memory pointers for workspace tensor
+   */
   std::vector<void *> _workSpaceTensor;
 
   /**

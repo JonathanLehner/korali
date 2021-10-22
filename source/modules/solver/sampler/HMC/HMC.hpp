@@ -39,28 +39,28 @@ namespace sampler
 ;
 
 /**
-  * @brief Enum to set metric type.
-*/
+ * @brief Enum to set metric type.
+ */
 enum Metric
 {
   /**
-  * @brief Static Metric type.
-  */
+   * @brief Static Metric type.
+   */
   Static = 0,
 
   /**
-  * @brief Euclidean Metric type.
-  */
+   * @brief Euclidean Metric type.
+   */
   Euclidean = 1,
 
   /**
-  * @brief Riemannian Metric type.
-  */
+   * @brief Riemannian Metric type.
+   */
   Riemannian = 2,
 
   /**
-  * @brief Const Riemannian Metric type.
-  */
+   * @brief Const Riemannian Metric type.
+   */
   Riemannian_Const = 3,
 };
 
@@ -73,56 +73,56 @@ class HMC : public Sampler
   std::unique_ptr<Leapfrog> _integrator;
 
   /**
-  * @brief Updates internal state such as mean, Metric and InverseMetric.
-  */
+   * @brief Updates internal state such as mean, Metric and InverseMetric.
+   */
   void updateState();
 
   /**
-  * @brief Process sample after evaluation.
-  */
+   * @brief Process sample after evaluation.
+   */
   void finishSample(size_t sampleId);
 
   /**
-  * @brief Runs generation of HMC sampler.
-  * @param logUniSample Log of uniform sample needed for Metropolis accepance / rejection step.
-  */
+   * @brief Runs generation of HMC sampler.
+   * @param logUniSample Log of uniform sample needed for Metropolis accepance / rejection step.
+   */
   void runGenerationHMC(const double logUniSample);
 
   /**
-  * @brief Runs NUTS algorithm with buildTree.
-  * @param logUniSample Log of uniform sample needed for Metropolis accepance / rejection step.
-  */
+   * @brief Runs NUTS algorithm with buildTree.
+   * @param logUniSample Log of uniform sample needed for Metropolis accepance / rejection step.
+   */
   void runGenerationNUTS(const double logUniSample);
 
   /**
-  * @brief Runs NUTS algorithm with buildTree.
-  * @param logUniSample Log of uniform sample needed for Metropolis accepance / rejection step.
-  */
+   * @brief Runs NUTS algorithm with buildTree.
+   * @param logUniSample Log of uniform sample needed for Metropolis accepance / rejection step.
+   */
   void runGenerationNUTSRiemannian(const double logUniSample);
 
   /**
-  * @brief Saves sample.
-  */
+   * @brief Saves sample.
+   */
   void saveSample();
 
   /**
-  * @brief Updates Step Size for Adaptive Step Size.
-  */
+   * @brief Updates Step Size for Adaptive Step Size.
+   */
   void updateStepSize();
 
   /**
-  * @brief Recursive binary tree building algorithm. Applied if configuration 'Use NUTS' is set to True.
-  * @param helper Helper struct for large argument list.
-  * @param depth Current depth of binary tree.
-  */
+   * @brief Recursive binary tree building algorithm. Applied if configuration 'Use NUTS' is set to True.
+   * @param helper Helper struct for large argument list.
+   * @param depth Current depth of binary tree.
+   */
   void buildTree(std::shared_ptr<TreeHelperEuclidean> helper, const size_t depth);
 
   /**
-  * @brief Recursive binary tree building algorithm. Applied if configuration 'Use NUTS' is set to True.
-  * @param helper Helper struct for large argument list.
-  * @param rho Sum of momenta encountered along path.
-  * @param depth Current depth of binary tree.
-  */
+   * @brief Recursive binary tree building algorithm. Applied if configuration 'Use NUTS' is set to True.
+   * @param helper Helper struct for large argument list.
+   * @param rho Sum of momenta encountered along path.
+   * @param depth Current depth of binary tree.
+   */
   void buildTreeIntegration(std::shared_ptr<TreeHelperRiemannian> helper, std::vector<double> &rho, const size_t depth);
 
   public: 
@@ -351,28 +351,28 @@ class HMC : public Sampler
   
 
   /**
- * @brief Configures HMC.
- */
+   * @brief Configures HMC.
+   */
   void setInitialConfiguration() override;
 
   /**
-  * @brief Final console output at termination.
-  */
+   * @brief Final console output at termination.
+   */
   void finalize() override;
 
   /**
-  * @brief Generate a sample and evaluate it.
-  */
+   * @brief Generate a sample and evaluate it.
+   */
   void runGeneration() override;
 
   /**
-  * @brief Console Output before generation runs.
-  */
+   * @brief Console Output before generation runs.
+   */
   void printGenerationBefore() override;
 
   /**
-  * @brief Console output after generation.
-  */
+   * @brief Console output after generation.
+   */
   void printGenerationAfter() override;
 };
 

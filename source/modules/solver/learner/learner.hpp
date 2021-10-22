@@ -55,22 +55,22 @@ class Learner : public Solver
   
 
   /**
-    * @brief For learner modules which have been trained, test returns an inferred output batch, from a batch of inputs to process.
-    * @param input The inputs from which to infer outputs. Format: BxTxIC (B: Batch Size, T: Time steps, IC: Input channels)
-    * @return The inferred batch outputs for the last given timestep. Format: BxOC (B: Batch Size, OC: Output channels)
+   * @brief For learner modules which have been trained, test returns an inferred output batch, from a batch of inputs to process.
+   * @param input The inputs from which to infer outputs. Format: BxTxIC (B: Batch Size, T: Time steps, IC: Input channels)
+   * @return The inferred batch outputs for the last given timestep. Format: BxOC (B: Batch Size, OC: Output channels)
    */
   virtual std::vector<std::vector<float>> &getEvaluation(const std::vector<std::vector<std::vector<float>>> &input);
 
   /**
-  * @brief Returns the hyperparameters required to continue training in the future
-  * @return The hyperparameters
-  */
+   * @brief Returns the hyperparameters required to continue training in the future
+   * @return The hyperparameters
+   */
   virtual std::vector<float> getHyperparameters() = 0;
 
   /**
-  * @brief Sets the hyperparameters required to continue training from a previous state
-  * @param hyperparameters The hyperparameters to use
-  */
+   * @brief Sets the hyperparameters required to continue training from a previous state
+   * @param hyperparameters The hyperparameters to use
+   */
   virtual void setHyperparameters(const std::vector<float> &hyperparameters) = 0;
 };
 

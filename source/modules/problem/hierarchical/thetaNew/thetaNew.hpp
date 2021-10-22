@@ -35,8 +35,8 @@ class ThetaNew : public Hierarchical
   korali::Experiment _psiExperimentObject;
 
   /**
-  * @brief Stores the number of samples in the Psi problem experiment to use as input
-  */
+   * @brief Stores the number of samples in the Psi problem experiment to use as input
+   */
   size_t _psiProblemSampleCount;
 
   /**
@@ -45,13 +45,13 @@ class ThetaNew : public Hierarchical
   std::vector<std::vector<double>> _psiProblemSampleCoordinates;
 
   /**
- * @brief Stores the sample logLikelihoods of the Psi Problem
- */
+   * @brief Stores the sample logLikelihoods of the Psi Problem
+   */
   std::vector<double> _psiProblemSampleLogLikelihoods;
 
   /**
-  * @brief Stores the sample logPriors of the Psi Problem
-  */
+   * @brief Stores the sample logPriors of the Psi Problem
+   */
   std::vector<double> _psiProblemSampleLogPriors;
 
   public: 
@@ -85,9 +85,9 @@ class ThetaNew : public Hierarchical
   void evaluateLogLikelihood(korali::Sample &sample) override;
 
   /**
- * @brief Evaluates the theta log likelihood of the given sample.
- * @param sample A Korali Sample
- */
+   * @brief Evaluates the theta log likelihood of the given sample.
+   * @param sample A Korali Sample
+   */
   void evaluateThetaLikelihood(korali::Sample &sample);
   void initialize() override;
 };

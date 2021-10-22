@@ -30,13 +30,13 @@ solver::Agent *_agent;
 Conduit *_conduit;
 
 /**
-  * @brief Stores the environment thread (coroutine).
-  */
+ * @brief Stores the environment thread (coroutine).
+ */
 cothread_t _envThread;
 
 /**
-  * @brief Stores the current launch Id for the current sample
-  */
+ * @brief Stores the current launch Id for the current sample
+ */
 size_t _launchId;
 
 void ReinforcementLearning::initialize()
@@ -52,8 +52,6 @@ void ReinforcementLearning::initialize()
 
   _actionVectorSize = _actionVectorIndexes.size();
   _stateVectorSize = _stateVectorIndexes.size();
-
-  if (_environmentCount == 0) KORALI_LOG_ERROR("Environment Count must be larger than 0 (is %zu).\n", _environmentCount);
 
   if (_actionVectorSize == 0) KORALI_LOG_ERROR("No action variables have been defined.\n");
   if (_stateVectorSize == 0) KORALI_LOG_ERROR("No state variables have been defined.\n");
@@ -116,47 +114,33 @@ void ReinforcementLearning::runTrainingEpisode(Sample &agent)
   // "Success" or "Truncated".
   agent["Termination"] = "Non Terminal";
 
+  // Setting standard value for environment Id
+  agent["Environment Id"] = 0;
+
   // Getting first state
   runEnvironment(agent);
 
   // If this is not the leader rank within the worker group, return immediately
-  if (_k->_engine->_conduit->isWorkerLeadRank() == false) finalizeEnvironment();
-  if (_k->_engine->_conduit->isWorkerLeadRank() == false) return;
-
-  // If multiple Enviroments, get the environment Id from each agent
-  std::vector<size_t> environmentId(_agentsPerEnvironment, 0);
-  if (_environmentCount > 1)
+  if (_k->_engine->_conduit->isWorkerLeadRank() == false)
   {
-    // Parsing environment Id while ensuring compatibility with single agent
-    if (_agentsPerEnvironment == 1)
-    {
-      auto envId = KORALI_GET(size_t, agent, "Environment Id");
-      agent._js.getJson().erase("Environment Id");
-      agent["Environment Id"][0] = envId;
-    }
-
-    // Checking correct format of environment Id
-    if (agent["Environment Id"].is_array() == false) KORALI_LOG_ERROR("Agent Environment Id variable returned by the environment is not a vector.\n");
-    if (agent["Environment Id"].size() != _agentsPerEnvironment) KORALI_LOG_ERROR("Agents Environment Id vector returned with the wrong size: %lu, expected: %lu.\n", agent["Environment Id"].size(), _agentsPerEnvironment);
-
-    // Sanity checks and saving environment Id
-    for (size_t i = 0; i < _agentsPerEnvironment; i++)
-    {
-      auto envId = agent["Environment Id"][i].get<size_t>();
-      if (std::isfinite(envId) == false || _environmentCount <= envId) KORALI_LOG_ERROR("Agent %lu Environment Id returned an invalid value: %f\n", i, envId);
-      environmentId[i] = agent["Environment Id"][i];
-    }
+    finalizeEnvironment();
+    return;
   }
+
+  // Get environment iId value from agent
+  auto environmentId = KORALI_GET(size_t, agent, "Environment Id");
+
+  // Check whether the env id provided does not exceed the maximum specified
+  if (environmentId >= _environmentCount) KORALI_LOG_ERROR("Environment Id provided (%lu) exceeds the maximum environment count defined (>= %lu).\n", environmentId, _environmentCount);
+
+  // Store the current environment Id in the experience
+  for (size_t i = 0; i < _agentsPerEnvironment; i++) episodes[i]["Environment Id"] = environmentId;
 
   // Saving experiences
   while (agent["Termination"] == "Non Terminal")
   {
     // Generating new action from the agent's policy
     getAction(agent);
-
-    // Store the current environment Id in the experience
-    for (size_t i = 0; i < _agentsPerEnvironment; i++)
-      episodes[i]["Experiences"][actionCount]["Environment Id"] = environmentId[i];
 
     // Store the current state in the experience
     for (size_t i = 0; i < _agentsPerEnvironment; i++)
@@ -241,8 +225,11 @@ void ReinforcementLearning::runTestingEpisode(Sample &agent)
   runEnvironment(agent);
 
   // If this is not the leader rank within the worker group, return immediately
-  if (_k->_engine->_conduit->isWorkerLeadRank() == false) finalizeEnvironment();
-  if (_k->_engine->_conduit->isWorkerLeadRank() == false) return;
+  if (_k->_engine->_conduit->isWorkerLeadRank() == false)
+  {
+    finalizeEnvironment();
+    return;
+  }
 
   // Running environment using the last policy only
   while (agent["Termination"] == "Non Terminal")

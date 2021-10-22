@@ -160,62 +160,62 @@ class MCMC : public Sampler
   
 
   /**
-  * @brief Calculates recursively acceptance probability. Recursion required for Delayed Rejection.
-  * @param denominator denominator of quotient (acceptance probability)
-  * @param leaderLoglikelihood loglikelihood of current chain leader
-  * @param loglikelihoods loglikelihoods of samples obtained after delay
-  * @param N rescursion depth
-  * @return The acceptance probability
-  */
+   * @brief Calculates recursively acceptance probability. Recursion required for Delayed Rejection.
+   * @param denominator denominator of quotient (acceptance probability)
+   * @param leaderLoglikelihood loglikelihood of current chain leader
+   * @param loglikelihoods loglikelihoods of samples obtained after delay
+   * @param N rescursion depth
+   * @return The acceptance probability
+   */
   double recursiveAlpha(double &denominator, const double leaderLoglikelihood, const double *loglikelihoods, size_t N) const;
 
   /**
-  * @brief Updates internal state such as mean and covariance of chain.
-  */
+   * @brief Updates internal state such as mean and covariance of chain.
+   */
   void updateState();
 
   /**
-  * @brief Generate new sample.
-  * @param sampleIdx Id of the sample to generate a candidate for
-  */
+   * @brief Generate new sample.
+   * @param sampleIdx Id of the sample to generate a candidate for
+   */
   void generateCandidate(size_t sampleIdx);
 
   /**
-  * @brief Cholesky decomposition of chain covariance matrix.
-  * @param inC Input matrix
-  * @param outL Output lower triangular decomposed matrix
-  */
+   * @brief Cholesky decomposition of chain covariance matrix.
+   * @param inC Input matrix
+   * @param outL Output lower triangular decomposed matrix
+   */
   void choleskyDecomp(const std::vector<double> &inC, std::vector<double> &outL) const;
 
   /**
-  * @brief Process sample after evaluation.
-  * @param sampleId Id of the sample to process
-  */
+   * @brief Process sample after evaluation.
+   * @param sampleId Id of the sample to process
+   */
   void finishSample(size_t sampleId);
 
   /**
- * @brief Configures MCMC.
- */
+   * @brief Configures MCMC.
+   */
   void setInitialConfiguration() override;
 
   /**
-  * @brief Final console output at termination.
-  */
+   * @brief Final console output at termination.
+   */
   void finalize() override;
 
   /**
-  * @brief Generate a sample and evaluate it.
-  */
+   * @brief Generate a sample and evaluate it.
+   */
   void runGeneration() override;
 
   /**
- * @brief Console Output before generation runs.
- */
+   * @brief Console Output before generation runs.
+   */
   void printGenerationBefore() override;
 
   /**
- * @brief Console output after generation.
- */
+   * @brief Console output after generation.
+   */
   void printGenerationAfter() override;
 };
 

@@ -48,18 +48,26 @@ int main(int argc, char *argv[])
   e["Variables"][14]["Name"] = "Frequency (w)";
   e["Variables"][14]["Type"] = "Action";
   e["Variables"][14]["Initial Exploration Noise"] = 0.447f;
+  e["Variables"][14]["Lower Bound"] = 0.0;
+  e["Variables"][14]["Upper Bound"] = 1.0;
 
   e["Variables"][15]["Name"] = "Rotation X";
   e["Variables"][15]["Type"] = "Action";
   e["Variables"][15]["Initial Exploration Noise"] = 0.447f;
+  e["Variables"][15]["Lower Bound"] = 0.0;
+  e["Variables"][15]["Upper Bound"] = 1.0;
 
   e["Variables"][16]["Name"] = "Rotation Y";
   e["Variables"][16]["Type"] = "Action";
   e["Variables"][16]["Initial Exploration Noise"] = 0.447f;
+  e["Variables"][16]["Lower Bound"] = 0.0;
+  e["Variables"][16]["Upper Bound"] = 1.0;
 
   e["Variables"][17]["Name"] = "Rotation Z";
   e["Variables"][17]["Type"] = "Action";
   e["Variables"][17]["Initial Exploration Noise"] = 0.447f;
+  e["Variables"][17]["Lower Bound"] = 0.0;
+  e["Variables"][17]["Upper Bound"] = 1.0;
 
   /// Defining Agent Configuration
 
@@ -104,6 +112,10 @@ int main(int argc, char *argv[])
   e["Solver"]["Neural Network"]["Hidden Layers"][3]["Type"] = "Layer/Activation";
   e["Solver"]["Neural Network"]["Hidden Layers"][3]["Function"] = "Elementwise/Tanh";
 
+  ////// Setting termination criteria
+  
+  e["Solver"]["Termination Criteria"]["Max Experiences"] = 10e6;
+  
   ////// Setting file output configuration
 
   e["Console Output"]["Verbosity"] = "Detailed";

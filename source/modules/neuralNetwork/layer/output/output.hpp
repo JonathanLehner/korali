@@ -23,13 +23,13 @@ namespace layer
 ;
 
 /**
-* @brief This enumerator details all possible transformations. It is used in lieu of string comparison to accelerate the application of this layer
-*/
+ * @brief This enumerator details all possible transformations. It is used in lieu of string comparison to accelerate the application of this layer
+ */
 enum transformation_t
 {
   /**
-  * @brief No transformation
-  */
+   * @brief No transformation
+   */
   t_identity = 0,
 
   /**
@@ -95,13 +95,13 @@ class Output : public Layer
   
 
   /**
- * @brief Contains the original output, before preprocessing
- */
+   * @brief Contains the original output, before preprocessing
+   */
   float *_srcOutputValues;
 
   /**
- * @brief Contains the postprocessed gradients
- */
+   * @brief Contains the postprocessed gradients
+   */
   float *_dstOutputGradients;
 
   /**
